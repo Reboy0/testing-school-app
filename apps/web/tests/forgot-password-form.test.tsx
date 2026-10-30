@@ -12,12 +12,12 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 describe("ForgotPasswordForm", () => {
-  it("labels the email input", () => {
+  it("PWD-025: labels the email input", () => {
     render(<ForgotPasswordForm />);
     expect(screen.getByLabelText("Email address")).toBeInTheDocument();
   });
 
-  it("posts the email and shows the confirmation regardless of whether the address exists", async () => {
+  it("PWD-026: posts the email and shows the confirmation regardless of whether the address exists", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(202, {}));
     vi.stubGlobal("fetch", fetchMock);
     render(<ForgotPasswordForm />);
@@ -31,7 +31,7 @@ describe("ForgotPasswordForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("disables the button while the request is in flight", async () => {
+  it("PWD-027: disables the button while the request is in flight", async () => {
     let release: (value: Response) => void = () => {};
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>((resolve) => { release = resolve; })));
     render(<ForgotPasswordForm />);
@@ -44,7 +44,7 @@ describe("ForgotPasswordForm", () => {
     );
   });
 
-  it("shows the field error instead of the confirmation when the address is not a valid email", async () => {
+  it("PWD-028: shows the field error instead of the confirmation when the address is not a valid email", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -62,7 +62,7 @@ describe("ForgotPasswordForm", () => {
     expect(screen.queryByText("If that address is registered, a reset link is on its way.")).not.toBeInTheDocument();
   });
 
-  it("shows a retry message instead of the confirmation when the request never reaches the server", async () => {
+  it("PWD-029: shows a retry message instead of the confirmation when the request never reaches the server", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
     render(<ForgotPasswordForm />);
     await userEvent.type(screen.getByLabelText("Email address"), "sam@example.com");

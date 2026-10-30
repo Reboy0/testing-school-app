@@ -6,6 +6,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "../fixtures";
 import type { Page } from "@playwright/test";
+import { withIds } from "../ids";
 import { createAccount, header } from "../plan-helpers";
 
 const LIGHT = "rgb(255, 255, 255)";
@@ -14,8 +15,8 @@ const DARK = "rgb(2, 6, 23)";
 const background = (page: Page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 const toggle = (page: Page) => header(page).getByRole("button", { name: /Switch to the (dark|light) theme/ });
 
-for (const [scheme, expected] of [["dark", DARK], ["light", LIGHT]] as const) {
-  test(`TH-01 UI-THEME-01: with nothing stored, the page follows a ${scheme} operating-system scheme`, async ({ page }) => {
+for (const [id, scheme, expected] of withIds("TH-004", "TH-005", [["dark", DARK], ["light", LIGHT]] as const)) {
+  test(`${id} UI-THEME-01: with nothing stored, the page follows a ${scheme} operating-system scheme`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme });
     await page.goto("/");
 
@@ -24,7 +25,7 @@ for (const [scheme, expected] of [["dark", DARK], ["light", LIGHT]] as const) {
   });
 }
 
-test("TH-01 UI-THEME-02: the header offers the theme toggle to a guest and to a signed-in user", async ({ page }) => {
+test("TH-006 UI-THEME-02: the header offers the theme toggle to a guest and to a signed-in user", async ({ page }) => {
   await page.goto("/");
   await expect(toggle(page)).toBeVisible();
 
@@ -34,12 +35,11 @@ test("TH-01 UI-THEME-02: the header offers the theme toggle to a guest and to a 
   await expect(toggle(page)).toBeVisible();
 });
 
-for (const [system, chosen, expected] of [
-  ["light", "dark", DARK],
-  ["dark", "light", LIGHT],
-] as const) {
-  const id = system === "light" ? "TH-02 UI-THEME-03" : "TH-02 UI-THEME-04";
-  test(`${id}: on a ${system} system, choosing ${chosen} holds across navigation, a reload and a new page`, async ({ context, page }) => {
+for (const [id, plan, system, chosen, expected] of withIds("TH-008", "TH-009", [
+  ["UI-THEME-03", "light", "dark", DARK],
+  ["UI-THEME-04", "dark", "light", LIGHT],
+] as const)) {
+  test(`${id} ${plan}: on a ${system} system, choosing ${chosen} holds across navigation, a reload and a new page`, async ({ context, page }) => {
     await page.emulateMedia({ colorScheme: system });
     await page.goto("/");
     await header(page).getByRole("button", { name: `Switch to the ${chosen} theme` }).click();
@@ -59,7 +59,7 @@ for (const [system, chosen, expected] of [
   });
 }
 
-test("TH-03 UI-THEME-05: a stored dark theme is applied before the first paint on a light system", async ({ page }) => {
+test("TH-010 UI-THEME-05: a stored dark theme is applied before the first paint on a light system", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.addInitScript(() => {
     window.localStorage.setItem("theme", "dark");
@@ -78,8 +78,8 @@ test("TH-03 UI-THEME-05: a stored dark theme is applied before the first paint o
   expect(await background(page)).toBe(DARK);
 });
 
-for (const theme of ["light", "dark"] as const) {
-  test(`TH-04 UI-THEME-06: key pages pass axe's colour-contrast check in the ${theme} theme`, async ({ page }) => {
+for (const [id, theme] of withIds("TH-012", "TH-013", ["light", "dark"] as const)) {
+  test(`${id} UI-THEME-06: key pages pass axe's colour-contrast check in the ${theme} theme`, async ({ page }) => {
     await page.addInitScript((value) => window.localStorage.setItem("theme", value), theme);
     const violations: string[] = [];
 

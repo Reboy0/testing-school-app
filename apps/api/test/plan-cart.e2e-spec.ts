@@ -55,7 +55,7 @@ describe("cart API (A-CART)", () => {
   }
 
   describe("signed-out cart", () => {
-    it("CRT-01 A-CART-01: a new visitor's cart is empty, and their first add gives them a cart cookie", async () => {
+    it("CRT-001 A-CART-01: a new visitor's cart is empty, and their first add gives them a cart cookie", async () => {
       const empty = await getCart([]).expect(200);
       expect(empty.body).toMatchObject({ itemCount: 0, lines: [], subtotalCents: 0, discountCents: 0, payableCents: 0 });
 
@@ -63,14 +63,14 @@ describe("cart API (A-CART)", () => {
       expect(setCookie(added, "cart_token")).toMatch(/;\s*HttpOnly/i);
     });
 
-    it("CRT-01 A-CART-02: a product a visitor added is still in their cart on a later request with the same cookie", async () => {
+    it("CRT-002 A-CART-02: a product a visitor added is still in their cart on a later request with the same cookie", async () => {
       const guest = await guestWith("prd_a", 2);
 
       const res = await getCart(guest).expect(200);
       expect(quantities(res.body)).toEqual({ prd_a: 2 });
     });
 
-    it("CRT-02 A-CART-03: two different visitors have separate carts", async () => {
+    it("CRT-004 A-CART-03: two different visitors have separate carts", async () => {
       const first = await guestWith("prd_a");
       const second = await guestWith("prd_b");
 
@@ -85,12 +85,12 @@ describe("cart API (A-CART)", () => {
       sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
     });
 
-    it("CRT-03 A-CART-04: adding an existing product with quantity 1, or 5, answers 200 with a line of that quantity", async () => {
+    it("CRT-006 A-CART-04: adding an existing product with quantity 1, or 5, answers 200 with a line of that quantity", async () => {
       expect(quantities((await add(sam, "prd_a", 1).expect(200)).body)).toEqual({ prd_a: 1 });
       expect(quantities((await add(sam, "prd_b", 5).expect(200)).body)).toEqual({ prd_a: 1, prd_b: 5 });
     });
 
-    it("CRT-03 A-CART-05: a missing product answers 404, and a quantity of 0, -1 or 1.5 answers 400, leaving the cart unchanged", async () => {
+    it("CRT-007 A-CART-05: a missing product answers 404, and a quantity of 0, -1 or 1.5 answers 400, leaving the cart unchanged", async () => {
       await add(sam, "prd_a", 1).expect(200);
 
       expect((await add(sam, "prd_nope", 1).expect(404)).body.code).toBe("NOT_FOUND");
@@ -103,7 +103,7 @@ describe("cart API (A-CART)", () => {
       expect(quantities((await getCart(sam).expect(200)).body)).toEqual({ prd_a: 1 });
     });
 
-    it("CRT-04 A-CART-06: adding the same product twice (1, then 2) leaves one line with quantity 3", async () => {
+    it("CRT-008 A-CART-06: adding the same product twice (1, then 2) leaves one line with quantity 3", async () => {
       await add(sam, "prd_a", 1).expect(200);
       const res = await add(sam, "prd_a", 2).expect(200);
 
@@ -112,7 +112,7 @@ describe("cart API (A-CART)", () => {
       expect(res.body.itemCount).toBe(3);
     });
 
-    it("CRT-05 A-CART-07: setting a line's quantity to 4 updates it and recalculates its amounts", async () => {
+    it("CRT-011 A-CART-07: setting a line's quantity to 4 updates it and recalculates its amounts", async () => {
       const added = await add(sam, "prd_a", 1).expect(200);
 
       const res = await request(app.server)
@@ -126,7 +126,7 @@ describe("cart API (A-CART)", () => {
       expect(res.body).toMatchObject({ itemCount: 4, subtotalCents: 4000, payableCents: 4000 });
     });
 
-    it("CRT-05 A-CART-08: setting a line's quantity to 0 removes the line", async () => {
+    it("CRT-012 A-CART-08: setting a line's quantity to 0 removes the line", async () => {
       const added = await add(sam, "prd_a", 2).expect(200);
 
       const res = await request(app.server)
@@ -138,7 +138,7 @@ describe("cart API (A-CART)", () => {
       expect(res.body).toMatchObject({ lines: [], itemCount: 0 });
     });
 
-    it("CRT-05 A-CART-09: deleting a line removes it", async () => {
+    it("CRT-013 A-CART-09: deleting a line removes it", async () => {
       await add(sam, "prd_a", 1).expect(200);
       const added = await add(sam, "prd_b", 1).expect(200);
       const lineB = added.body.lines.find((line: Line) => line.productId === "prd_b");
@@ -153,7 +153,7 @@ describe("cart API (A-CART)", () => {
     const signIn = (cookies: string[]) =>
       request(app.server).post("/auth/login").set("Cookie", cookies).send({ email: "sam@example.com", password: PASSWORD });
 
-    it("CRT-06 A-CART-10: guest A×2, B×1 signing in to an account holding A×1, C×1 leaves A×3, B×1, C×1", async () => {
+    it("CRT-016 A-CART-10: guest A×2, B×1 signing in to an account holding A×1, C×1 leaves A×3, B×1, C×1", async () => {
       const sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
       await add(sam, "prd_a", 1).expect(200);
       await add(sam, "prd_c", 1).expect(200);
@@ -166,7 +166,7 @@ describe("cart API (A-CART)", () => {
       expect(quantities(cart.body)).toEqual({ prd_a: 3, prd_b: 1, prd_c: 1 });
     });
 
-    it("CRT-06 A-CART-11: a guest with an empty cart signing in leaves the account's cart as it was", async () => {
+    it("CRT-017 A-CART-11: a guest with an empty cart signing in leaves the account's cart as it was", async () => {
       const sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
       await add(sam, "prd_a", 2).expect(200);
 
@@ -176,7 +176,7 @@ describe("cart API (A-CART)", () => {
       expect(quantities(cart.body)).toEqual({ prd_a: 2 });
     });
 
-    it("CRT-06 A-CART-12: a guest with items signing in to an account with no cart brings every item across", async () => {
+    it("CRT-018 A-CART-12: a guest with items signing in to an account with no cart brings every item across", async () => {
       const guest = await guestWith("prd_a", 2);
       await add(guest, "prd_b", 1).expect(200);
 
@@ -186,7 +186,7 @@ describe("cart API (A-CART)", () => {
       expect(quantities(cart.body)).toEqual({ prd_a: 2, prd_b: 1 });
     });
 
-    it("CRT-06 A-CART-13: after the merge the guest cookie is cleared, and signing in again with it does not add the guest's items twice", async () => {
+    it("CRT-019 A-CART-13: after the merge the guest cookie is cleared, and signing in again with it does not add the guest's items twice", async () => {
       const guest = await guestWith("prd_a", 2);
 
       const first = await signIn(guest).expect(200);
@@ -204,7 +204,7 @@ describe("cart API (A-CART)", () => {
       sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
     });
 
-    it("CRT-07 A-CART-14: iPhone dock (1999 ¢, 25 % off) × 3 totals 5997 ¢, takes 1499 ¢ off and leaves 4498 ¢ to pay", async () => {
+    it("CRT-025 A-CART-14: iPhone dock (1999 ¢, 25 % off) × 3 totals 5997 ¢, takes 1499 ¢ off and leaves 4498 ¢ to pay", async () => {
       const res = await add(sam, "prd_dock", 3).expect(200);
 
       // 3 × 1999 = 5997 ¢; 25 % of 5997 = 1499.25 → 1499 ¢ (not 3 × 500 = 1500 ¢).
@@ -212,7 +212,7 @@ describe("cart API (A-CART)", () => {
       expect(res.body).toMatchObject({ subtotalCents: 5997, discountCents: 1499, payableCents: 4498 });
     });
 
-    it("CRT-08 A-CART-15: every line reports price, quantity, total and discount, and the cart its subtotal, discount and payable, in whole cents", async () => {
+    it("CRT-028 A-CART-15: every line reports price, quantity, total and discount, and the cart its subtotal, discount and payable, in whole cents", async () => {
       await add(sam, "prd_a", 2).expect(200);
       await add(sam, "prd_b", 1).expect(200);
       const res = await getCart(sam).expect(200);
@@ -234,7 +234,7 @@ describe("cart API (A-CART)", () => {
   });
 
   describe("ownership", () => {
-    it("CRT-10 A-CART-16: changing or deleting a line from somebody else's cart answers exactly as a missing line, and leaves it alone", async () => {
+    it("CRT-033 A-CART-16: changing or deleting a line from somebody else's cart answers exactly as a missing line, and leaves it alone", async () => {
       const sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
       const dana = (await loginAs(app, "dana@example.com", PASSWORD)).cookies;
       const samsLine = (await add(sam, "prd_a", 1).expect(200)).body.lines[0].id;
@@ -251,7 +251,7 @@ describe("cart API (A-CART)", () => {
       expect(quantities((await getCart(sam).expect(200)).body)).toEqual({ prd_a: 1 });
     });
 
-    it("CRT-10 A-CART-17: a signed-out visitor changing a signed-in user's line gets the missing-line answer", async () => {
+    it("CRT-034 A-CART-17: a signed-out visitor changing a signed-in user's line gets the missing-line answer", async () => {
       const sam = (await loginAs(app, "sam@example.com", PASSWORD)).cookies;
       const samsLine = (await add(sam, "prd_a", 1).expect(200)).body.lines[0].id;
       const guest = await guestWith("prd_b");

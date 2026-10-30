@@ -17,7 +17,7 @@ async function addAddress(page: Page, address: Record<string, string>) {
 
 const addressRows = (page: Page) => page.getByRole("heading", { name: "Addresses" }).locator("..").locator("ul > li");
 
-test("PROF-03 E-USER-01: a new name and phone saved on /profile are there after a reload, and the header shows the new name", async ({ page }) => {
+test("PROF-010 E-USER-01: a new name and phone saved on /profile are there after a reload, and the header shows the new name", async ({ page }) => {
   const account = await createAccount(page.request, "profile");
   await page.goto("/profile");
 
@@ -33,7 +33,7 @@ test("PROF-03 E-USER-01: a new name and phone saved on /profile are there after 
   await expect(header(page).getByRole("link", { name: account.name })).toHaveCount(0);
 });
 
-test("PROF-06 E-USER-02: add two addresses, make the second the default, delete the first — the list and the Default mark are right after each step", async ({ page }) => {
+test("PROF-022 E-USER-02: add two addresses, make the second the default, delete the first — the list and the Default mark are right after each step", async ({ page }) => {
   await createAccount(page.request, "addresses");
   await page.goto("/profile");
 
@@ -56,7 +56,7 @@ test("PROF-06 E-USER-02: add two addresses, make the second the default, delete 
   await expect(addressRows(page).first()).toContainText("Default");
 });
 
-test("PROF-08 E-USER-03: there is no separate addresses page — /addresses is a 404", async ({ page }) => {
+test("PROF-026 E-USER-03: there is no separate addresses page — /addresses is a 404", async ({ page }) => {
   const res = await page.goto("/addresses");
 
   expect(res?.status()).toBe(404);

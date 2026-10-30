@@ -11,7 +11,7 @@ describe("POST /auth/login", () => {
     await createUser(app.prisma, { email: "sam@example.com", password: "Password123!" });
   });
 
-  it("signs in with correct credentials", async () => {
+  it("LOGIN-038: signs in with correct credentials", async () => {
     const res = await request(app.server)
       .post("/auth/login")
       .send({ email: "sam@example.com", password: "Password123!" })
@@ -19,7 +19,7 @@ describe("POST /auth/login", () => {
     expect((res.get("set-cookie") ?? []).some((c) => c.startsWith("access_token="))).toBe(true);
   });
 
-  it("rejects a wrong password with 401", async () => {
+  it("LOGIN-039: rejects a wrong password with 401", async () => {
     await request(app.server)
       .post("/auth/login")
       .send({ email: "sam@example.com", password: "WrongPassword1" })

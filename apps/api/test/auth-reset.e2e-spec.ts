@@ -12,17 +12,17 @@ describe("password reset", () => {
     await createUser(app.prisma, { email: "sam@example.com", password: "Password123!" });
   });
 
-  it("accepts a forgot-password request for a known address", async () => {
+  it("PWD-021: accepts a forgot-password request for a known address", async () => {
     await request(app.server).post("/auth/forgot-password").send({ email: "sam@example.com" }).expect(202);
     expect(await app.prisma.passwordResetToken.count()).toBe(1);
   });
 
-  it("answers 202 for an unknown address without creating a token", async () => {
+  it("PWD-022: answers 202 for an unknown address without creating a token", async () => {
     await request(app.server).post("/auth/forgot-password").send({ email: "nobody@example.com" }).expect(202);
     expect(await app.prisma.passwordResetToken.count()).toBe(0);
   });
 
-  it("resets the password with a valid token", async () => {
+  it("PWD-023: resets the password with a valid token", async () => {
     await request(app.server).post("/auth/forgot-password").send({ email: "sam@example.com" }).expect(202);
     const token = await latestResetToken();
     await request(app.server)
@@ -35,7 +35,7 @@ describe("password reset", () => {
       .expect(200);
   });
 
-  it("rejects a token that was never issued", async () => {
+  it("PWD-024: rejects a token that was never issued", async () => {
     await request(app.server)
       .post("/auth/reset-password")
       .send({ token: "0".repeat(64), password: "BrandNewPass1" })

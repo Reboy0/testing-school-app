@@ -11,6 +11,7 @@ import {
   updateCartLineSchema,
   updateProfileSchema,
 } from "./index";
+import { withIds } from "./testing/ids";
 
 const fieldErrorsOf = (result: { success: boolean; error?: { flatten(): { fieldErrors: Record<string, string[] | undefined> } } }) =>
   result.success ? {} : result.error!.flatten().fieldErrors;
@@ -18,41 +19,41 @@ const fieldErrorsOf = (result: { success: boolean; error?: { flatten(): { fieldE
 describe("registerSchema", () => {
   const valid = { email: "ada@example.com", name: "Ada", password: "Abcdefghi1" };
 
-  it("REG-01 U-AUTH-01: accepts a valid email, name and the 10-character password Abcdefghi1", () => {
+  it("REG-001 U-AUTH-01: accepts a valid email, name and the 10-character password Abcdefghi1", () => {
     expect(registerSchema.safeParse(valid)).toEqual({ success: true, data: valid });
   });
 
-  it("REG-02 U-AUTH-02: rejects a 9-character password that meets every other rule, against password", () => {
+  it("REG-004 U-AUTH-02: rejects a 9-character password that meets every other rule, against password", () => {
     const result = registerSchema.safeParse({ ...valid, password: "Abcdefgh1" });
 
     expect(result.success).toBe(false);
     expect(fieldErrorsOf(result).password).toEqual(["Password must be at least 10 characters"]);
   });
 
-  it.each([
+  it.each(withIds("REG-005", "REG-007", [
     ["no uppercase letter", "abcdefghi1", "Password must contain an uppercase letter"],
     ["no lowercase letter", "ABCDEFGHI1", "Password must contain a lowercase letter"],
     ["no digit", "Abcdefghij", "Password must contain a digit"],
-  ])("REG-02 U-AUTH-03: a password with %s gets its own error against password", (_rule, password, message) => {
+  ]))("%s U-AUTH-03: a password with %s gets its own error against password", (_id, _rule, password, message) => {
     const result = registerSchema.safeParse({ ...valid, password });
 
     expect(fieldErrorsOf(result).password).toEqual([message]);
   });
 
-  it.each([
+  it.each(withIds("REG-012", "REG-017", [
     ["email", { name: "Ada", password: "Abcdefghi1" }],
     ["name", { email: "ada@example.com", password: "Abcdefghi1" }],
     ["password", { email: "ada@example.com", name: "Ada" }],
     ["email", { ...valid, email: "" }],
     ["name", { ...valid, name: "" }],
     ["password", { ...valid, password: "" }],
-  ])("REG-03 U-AUTH-04: a missing or empty %s is reported against that field", (field, input) => {
+  ]))("%s U-AUTH-04: a missing or empty %s is reported against that field", (_id, field, input) => {
     const errors = fieldErrorsOf(registerSchema.safeParse(input));
 
     expect(Object.keys(errors)).toEqual([field]);
   });
 
-  it.each(["a", "a@", "@b.c", "ada @example.com"])("REG-03 U-AUTH-05: rejects the malformed email %j against email", (email) => {
+  it.each(withIds("REG-018", "REG-021", ["a", "a@", "@b.c", "ada @example.com"]))("%s U-AUTH-05: rejects the malformed email %j against email", (_id, email) => {
     const errors = fieldErrorsOf(registerSchema.safeParse({ ...valid, email }));
 
     expect(Object.keys(errors)).toEqual(["email"]);
@@ -60,7 +61,7 @@ describe("registerSchema", () => {
 });
 
 describe("updateProfileSchema", () => {
-  it("PROF-03 U-USER-01: accepts a partial body and an empty body, and drops unknown fields", () => {
+  it("PROF-005 U-USER-01: accepts a partial body and an empty body, and drops unknown fields", () => {
     expect(updateProfileSchema.parse({ phone: "+380501234567" })).toEqual({ phone: "+380501234567" });
     expect(updateProfileSchema.parse({})).toEqual({});
     expect(updateProfileSchema.parse({ name: "Ada", role: "ADMIN", email: "x@y.z", id: "usr_1" })).toEqual({
@@ -72,7 +73,7 @@ describe("updateProfileSchema", () => {
 describe("addressInputSchema", () => {
   const address = { label: "Home", line1: "1 Main St", city: "Kyiv", postalCode: "01001", country: "UA" };
 
-  it("PROF-05 U-USER-02: a missing, empty or malformed field is reported against that field", () => {
+  it("PROF-012 U-USER-02: a missing, empty or malformed field is reported against that field", () => {
     expect(addressInputSchema.safeParse(address).success).toBe(true);
 
     for (const field of ["label", "line1", "city", "postalCode"] as const) {
@@ -88,7 +89,7 @@ describe("addressInputSchema", () => {
 });
 
 describe("catalogueQuerySchema", () => {
-  it("SEARCH-07 U-CAT-08: coerces query-string numbers, treats blanks as absent, rejects invalid page and sort", () => {
+  it("SEARCH-016 U-CAT-08: coerces query-string numbers, treats blanks as absent, rejects invalid page and sort", () => {
     expect(catalogueQuerySchema.parse({ page: "2", minPrice: "500", maxPrice: "1500" })).toEqual({
       page: 2,
       minPrice: 500,
@@ -115,7 +116,7 @@ describe("catalogueQuerySchema", () => {
 });
 
 describe("addToCartSchema", () => {
-  it("CRT-03 U-CART-06: defaults a missing quantity to 1 and rejects 0, -1, 1.5 and a word", () => {
+  it("CRT-005 U-CART-06: defaults a missing quantity to 1 and rejects 0, -1, 1.5 and a word", () => {
     expect(addToCartSchema.parse({ productId: "prd_1" })).toEqual({ productId: "prd_1", quantity: 1 });
 
     for (const quantity of [0, -1, 1.5, "lots"]) {
@@ -127,7 +128,7 @@ describe("addToCartSchema", () => {
 });
 
 describe("updateCartLineSchema", () => {
-  it("CRT-05 U-CART-07: accepts 0 and rejects -1 and 1.5", () => {
+  it("CRT-010 U-CART-07: accepts 0 and rejects -1 and 1.5", () => {
     expect(updateCartLineSchema.parse({ quantity: 0 })).toEqual({ quantity: 0 });
     expect(updateCartLineSchema.safeParse({ quantity: -1 }).success).toBe(false);
     expect(updateCartLineSchema.safeParse({ quantity: 1.5 }).success).toBe(false);

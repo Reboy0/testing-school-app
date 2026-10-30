@@ -8,7 +8,7 @@ function mockResponse(status: number, body: unknown) {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("apiFetch", () => {
-  it("sends credentials so the API's httpOnly cookies are included", async () => {
+  it("XC-034: sends credentials so the API's httpOnly cookies are included", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mockResponse(200, { id: "usr_1" }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -17,12 +17,12 @@ describe("apiFetch", () => {
     expect(fetchMock.mock.calls[0][1]).toMatchObject({ credentials: "include" });
   });
 
-  it("returns the parsed body on success", async () => {
+  it("XC-035: returns the parsed body on success", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(mockResponse(200, { id: "usr_1" })));
     expect(await apiFetch<{ id: string }>("/users/me")).toEqual({ id: "usr_1" });
   });
 
-  it("throws an ApiError carrying code, message and fieldErrors", async () => {
+  it("XC-036: throws an ApiError carrying code, message and fieldErrors", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       mockResponse(400, {
         code: "VALIDATION_FAILED",
@@ -39,7 +39,7 @@ describe("apiFetch", () => {
     expect(error.fieldErrors).toEqual({ password: ["Password must contain a digit"] });
   });
 
-  it("throws an ApiError with null fieldErrors when the body has none", async () => {
+  it("XC-037: throws an ApiError with null fieldErrors when the body has none", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       mockResponse(401, { code: "INVALID_CREDENTIALS", message: "Email or password is incorrect", fieldErrors: null }),
     ));
@@ -50,7 +50,7 @@ describe("apiFetch", () => {
     expect(error.message).toBe("Email or password is incorrect");
   });
 
-  it("returns undefined for a 204 with no body", async () => {
+  it("XC-038: returns undefined for a 204 with no body", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true, status: 204,
       json: async () => { throw new SyntaxError("Unexpected end of JSON input"); },
@@ -59,7 +59,7 @@ describe("apiFetch", () => {
     await expect(apiFetch("/auth/logout", { method: "POST" })).resolves.toBeUndefined();
   });
 
-  it("sends caller-supplied plain-object headers alongside the default Content-Type", async () => {
+  it("XC-039: sends caller-supplied plain-object headers alongside the default Content-Type", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mockResponse(200, { id: "usr_1" }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -70,7 +70,7 @@ describe("apiFetch", () => {
     expect(sentHeaders.get("content-type")).toBe("application/json");
   });
 
-  it("lets a caller-supplied Headers instance override the default Content-Type", async () => {
+  it("XC-040: lets a caller-supplied Headers instance override the default Content-Type", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mockResponse(200, { id: "usr_1" }));
     vi.stubGlobal("fetch", fetchMock);
 

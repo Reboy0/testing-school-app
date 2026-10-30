@@ -17,14 +17,14 @@ const product: Product = {
 };
 
 describe("ProductCard", () => {
-  it("renders a card for the product", () => {
+  it("CATL-025: renders a card for the product", () => {
     const { container } = render(<ProductCard product={product} onAdd={vi.fn()} />);
 
     expect(container.querySelector("li")).not.toBeNull();
     expect(container.textContent).toBeTruthy();
   });
 
-  it("renders the picture and a button", () => {
+  it("CATL-026: renders the picture and a button", () => {
     const { container } = render(<ProductCard product={product} onAdd={vi.fn()} />);
 
     expect(container.querySelector("img")).not.toBeNull();

@@ -51,7 +51,7 @@ beforeEach(() => {
 });
 
 describe("HomePage", () => {
-  it("signed out: shows the intro paragraph and both calls to action", () => {
+  it("HP-009: signed out: shows the intro paragraph and both calls to action", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.getByText(/account, profile, and saved addresses/i)).toBeInTheDocument();
@@ -59,19 +59,19 @@ describe("HomePage", () => {
     expect(screen.getByRole("link", { name: "Create an account" })).toBeInTheDocument();
   });
 
-  it("signed out: shows no greeting", () => {
+  it("HP-010: signed out: shows no greeting", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
   });
 
-  it("signed in: the greeting contains the user's name", () => {
+  it("HP-011: signed in: the greeting contains the user's name", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(profile.name);
   });
 
-  it("signed in: links to the profile, which now holds the addresses too", () => {
+  it("HP-012: signed in: links to the profile, which now holds the addresses too", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.getByRole("link", { name: "Your profile" })).toHaveAttribute("href", "/profile");
@@ -81,27 +81,27 @@ describe("HomePage", () => {
   // Previously this state rendered a lone "School App" heading, which looks
   // like a finished page that simply has nothing on it — exactly how it read
   // during a minute-long cold start on the free tier.
-  it("loading: says it is loading rather than rendering a bare heading", () => {
+  it("HP-013: loading: says it is loading rather than rendering a bare heading", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: true, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.getByRole("status")).toHaveTextContent(/loading/i);
   });
 
-  it("loading: offers neither the signed-in nor the signed-out calls to action", () => {
+  it("HP-014: loading: offers neither the signed-in nor the signed-out calls to action", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: true, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(screen.queryByRole("link", { name: "Log in" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Your profile" })).not.toBeInTheDocument();
   });
 
-  it("signed out: shows the shop", async () => {
+  it("HP-015: signed out: shows the shop", async () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(await screen.findByText("Desk lamp")).toBeInTheDocument();
     expect(screen.getByText("$34.50")).toBeInTheDocument();
   });
 
-  it("signed in: shows the same shop", async () => {
+  it("HP-016: signed in: shows the same shop", async () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut: vi.fn() });
     render(<HomePage />);
     expect(await screen.findByText("Desk lamp")).toBeInTheDocument();

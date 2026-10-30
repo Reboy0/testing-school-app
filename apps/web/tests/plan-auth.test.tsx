@@ -13,6 +13,7 @@ import { SiteHeader } from "../components/SiteHeader";
 import { CartProvider } from "../lib/cart";
 import { SessionProvider, useSession } from "../lib/session";
 import { cartOf, deferred, jsonResponse, sam, stubApi, unauthenticated } from "./plan-helpers";
+import { withIds } from "./ids";
 
 const push = vi.fn();
 let search = "";
@@ -45,7 +46,7 @@ async function fillLogin() {
 }
 
 describe("LoginForm", () => {
-  it("XC-02 C-AUTH-01: the email and password inputs are found by their labels", () => {
+  it("XC-005 C-AUTH-01: the email and password inputs are found by their labels", () => {
     stubApi(() => unauthenticated());
     withSession(<LoginForm />);
 
@@ -53,7 +54,7 @@ describe("LoginForm", () => {
     expect(screen.getByLabelText("Password")).toHaveAttribute("type", "password");
   });
 
-  it("LOGIN-05 C-AUTH-02: a successful sign-in with no destination goes home", async () => {
+  it("LOGIN-021 C-AUTH-02: a successful sign-in with no destination goes home", async () => {
     stubApi(({ path }) => (path === "/auth/login" ? jsonResponse(200) : jsonResponse(200, sam)));
     withSession(<LoginForm />);
 
@@ -63,7 +64,7 @@ describe("LoginForm", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
   });
 
-  it("LOGIN-05 C-AUTH-02: a successful sign-in that began on a protected page goes back to that page", async () => {
+  it("LOGIN-022 C-AUTH-02: a successful sign-in that began on a protected page goes back to that page", async () => {
     search = "returnTo=%2Fprofile";
     stubApi(({ path }) => (path === "/auth/login" ? jsonResponse(200) : jsonResponse(200, sam)));
     withSession(<LoginForm />);
@@ -75,7 +76,7 @@ describe("LoginForm", () => {
     expect(push).toHaveBeenCalledWith("/profile");
   });
 
-  it("LOGIN-03 C-AUTH-03: a 401 from the API shows its message and leaves the form usable", async () => {
+  it("LOGIN-012 C-AUTH-03: a 401 from the API shows its message and leaves the form usable", async () => {
     stubApi(({ path }) =>
       path === "/auth/login"
         ? jsonResponse(401, { code: "INVALID_CREDENTIALS", message: "Email or password is incorrect", fieldErrors: null })
@@ -91,7 +92,7 @@ describe("LoginForm", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("XC-01 C-AUTH-04: fieldErrors from the API appear beside the field they name, which is marked aria-invalid", async () => {
+  it("XC-001 C-AUTH-04: fieldErrors from the API appear beside the field they name, which is marked aria-invalid", async () => {
     stubApi(({ path }) =>
       path === "/auth/login"
         ? jsonResponse(400, {
@@ -112,7 +113,7 @@ describe("LoginForm", () => {
     expect(screen.getByLabelText("Password")).not.toHaveAttribute("aria-invalid");
   });
 
-  it("LOGIN-09 C-AUTH-05: while the request is in flight the button is disabled and a second submit sends nothing", async () => {
+  it("LOGIN-035 C-AUTH-05: while the request is in flight the button is disabled and a second submit sends nothing", async () => {
     const pending = deferred<Response>();
     const api = stubApi(({ path }) => (path === "/auth/login" ? pending.promise : jsonResponse(200, sam)));
     withSession(<LoginForm />);
@@ -138,7 +139,7 @@ describe("RegisterForm", () => {
     await userEvent.click(screen.getByRole("button", { name: "Create account" }));
   }
 
-  it("REG-02 C-AUTH-06: every password error the API returns is shown beside the password field", async () => {
+  it("REG-010 C-AUTH-06: every password error the API returns is shown beside the password field", async () => {
     const messages = [
       "Password must be at least 10 characters",
       "Password must contain an uppercase letter",
@@ -159,7 +160,7 @@ describe("RegisterForm", () => {
     expect(within(list).getAllByRole("listitem").map((item) => item.textContent)).toEqual(messages);
   });
 
-  it("REG-04 C-AUTH-07: a 409 for an email that is taken is shown to the visitor", async () => {
+  it("REG-023 C-AUTH-07: a 409 for an email that is taken is shown to the visitor", async () => {
     stubApi(({ path }) =>
       path === "/auth/register"
         ? jsonResponse(409, { code: "EMAIL_TAKEN", message: "That email is already registered", fieldErrors: null })
@@ -173,7 +174,7 @@ describe("RegisterForm", () => {
     expect(push).not.toHaveBeenCalled();
   });
 
-  it("REG-06 C-AUTH-08: a successful registration goes home, and the button is disabled while it is in flight", async () => {
+  it("REG-028 C-AUTH-08: a successful registration goes home, and the button is disabled while it is in flight", async () => {
     const pending = deferred<Response>();
     stubApi(({ path }) => (path === "/auth/register" ? pending.promise : jsonResponse(200, sam)));
     withSession(<RegisterForm />);
@@ -187,7 +188,7 @@ describe("RegisterForm", () => {
 });
 
 describe("ForgotPasswordForm", () => {
-  it("PWD-05 C-AUTH-09: a known and an unknown address get the same confirmation", async () => {
+  it("PWD-015 C-AUTH-09: a known and an unknown address get the same confirmation", async () => {
     const confirmations: string[] = [];
     for (const email of ["sam@example.com", "nobody@example.com"]) {
       stubApi(() => jsonResponse(202));
@@ -201,7 +202,7 @@ describe("ForgotPasswordForm", () => {
     expect(confirmations[0]).toBe(confirmations[1]);
   });
 
-  it("PWD-06 C-AUTH-10: an invalid email shows the field error instead of the confirmation", async () => {
+  it("PWD-017 C-AUTH-10: an invalid email shows the field error instead of the confirmation", async () => {
     stubApi(() =>
       jsonResponse(400, { code: "VALIDATION_FAILED", message: "Check the highlighted fields", fieldErrors: { email: ["Enter a valid email address"] } }),
     );
@@ -215,7 +216,7 @@ describe("ForgotPasswordForm", () => {
     expect(screen.queryByText(/reset link is on its way/)).not.toBeInTheDocument();
   });
 
-  it("PWD-06 C-AUTH-10: a network failure shows a message that suggests trying again", async () => {
+  it("PWD-018 C-AUTH-10: a network failure shows a message that suggests trying again", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     render(<ForgotPasswordForm />);
 
@@ -228,7 +229,7 @@ describe("ForgotPasswordForm", () => {
 });
 
 describe("ResetPasswordForm", () => {
-  it("PWD-01 C-AUTH-11: the token from the query string goes into the request, and success leads to sign-in", async () => {
+  it("PWD-003 C-AUTH-11: the token from the query string goes into the request, and success leads to sign-in", async () => {
     search = "token=abc123";
     const api = stubApi(() => jsonResponse(204));
     render(<ResetPasswordForm />);
@@ -240,7 +241,7 @@ describe("ResetPasswordForm", () => {
     expect(api.callsTo("/auth/reset-password")[0].body).toEqual({ token: "abc123", password: "BrandNewPass1" });
   });
 
-  it("PWD-02 C-AUTH-12: a password the API rejects is reported beside the password field", async () => {
+  it("PWD-008 C-AUTH-12: a password the API rejects is reported beside the password field", async () => {
     search = "token=abc123";
     stubApi(() =>
       jsonResponse(400, {
@@ -259,7 +260,7 @@ describe("ResetPasswordForm", () => {
     expect(errorsFor(password)).toHaveTextContent("Password must contain a digit");
   });
 
-  it("PWD-02 C-AUTH-12: a token the API rejects gives a clear message that the link is no longer valid", async () => {
+  it("PWD-009 C-AUTH-12: a token the API rejects gives a clear message that the link is no longer valid", async () => {
     search = "token=used";
     stubApi(() => jsonResponse(400, { code: "INVALID_TOKEN", message: "This reset link is no longer valid", fieldErrors: null }));
     render(<ResetPasswordForm />);
@@ -273,7 +274,7 @@ describe("ResetPasswordForm", () => {
 });
 
 describe("RequireAuth", () => {
-  it("LOGIN-05 C-AUTH-13: shows Loading…, then on 401 sends the visitor to sign in with the current page, never rendering the content", async () => {
+  it("LOGIN-023 C-AUTH-13: shows Loading…, then on 401 sends the visitor to sign in with the current page, never rendering the content", async () => {
     pathname = "/profile";
     const pending = deferred<Response>();
     stubApi(() => pending.promise);
@@ -299,7 +300,7 @@ describe("SiteHeader", () => {
       </SessionProvider>,
     );
 
-  it("LOGIN-07 C-AUTH-14: a guest sees Login and Register, and neither a name nor Sign out", async () => {
+  it("LOGIN-029 C-AUTH-14: a guest sees Login and Register, and neither a name nor Sign out", async () => {
     stubApi(({ path }) => (path === "/cart" ? jsonResponse(200, cartOf([])) : unauthenticated()));
     renderHeader();
 
@@ -309,7 +310,7 @@ describe("SiteHeader", () => {
     expect(screen.queryByText(sam.name)).not.toBeInTheDocument();
   });
 
-  it("LOGIN-07 C-AUTH-14: a signed-in user sees their name linking to /profile and Sign out, and no Login or Register", async () => {
+  it("LOGIN-030 C-AUTH-14: a signed-in user sees their name linking to /profile and Sign out, and no Login or Register", async () => {
     stubApi(({ path }) => (path === "/cart" ? jsonResponse(200, cartOf([])) : jsonResponse(200, sam)));
     renderHeader();
 
@@ -319,7 +320,7 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("link", { name: "Register" })).not.toBeInTheDocument();
   });
 
-  it("LOGIN-07 C-AUTH-14: while the session loads, placeholders hidden from assistive technology stand in for both", () => {
+  it("LOGIN-031 C-AUTH-14: while the session loads, placeholders hidden from assistive technology stand in for both", () => {
     stubApi(({ path }) => (path === "/cart" ? jsonResponse(200, cartOf([])) : new Promise<Response>(() => {})));
     renderHeader();
 
@@ -328,7 +329,7 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
   });
 
-  it("LOGIN-06 C-AUTH-15: Sign out posts /auth/logout and then reads the session again", async () => {
+  it("LOGIN-027 C-AUTH-15: Sign out posts /auth/logout and then reads the session again", async () => {
     let signedIn = true;
     const api = stubApi(({ path }) => {
       if (path === "/cart") return jsonResponse(200, cartOf([]));
@@ -354,10 +355,10 @@ describe("SessionProvider", () => {
     return <p>{loading ? "loading" : profile ? profile.name : "signed out"}</p>;
   }
 
-  it.each([
+  it.each(withIds("LOGIN-033", "LOGIN-034", [
     [401, unauthenticated],
     [500, () => jsonResponse(500, { code: "INTERNAL_ERROR", message: "Something went wrong", fieldErrors: null })],
-  ])("LOGIN-08 C-AUTH-16: a %i from /users/me leaves profile null without throwing, after exactly one request", async (_status, respond) => {
+  ]))("%s C-AUTH-16: a %i from /users/me leaves profile null without throwing, after exactly one request", async (_id, _status, respond) => {
     const api = stubApi(() => respond());
     render(
       <SessionProvider>

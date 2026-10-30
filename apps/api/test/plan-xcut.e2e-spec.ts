@@ -40,7 +40,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
   });
 
   describe("error contract", () => {
-    it("XC-05 A-ERR-01: a malformed JSON body answers 400 with {code, message, fieldErrors: null}", async () => {
+    it("XC-015 A-ERR-01: a malformed JSON body answers 400 with {code, message, fieldErrors: null}", async () => {
       const res = await request(app.server)
         .post("/auth/register")
         .set("Content-Type", "application/json")
@@ -51,7 +51,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
       expect(res.body.fieldErrors).toBeNull();
     });
 
-    it("XC-05 A-ERR-02: every endpoint that takes a body answers a validation failure with 400 VALIDATION_FAILED and fieldErrors keyed by field", async () => {
+    it("XC-016 A-ERR-02: every endpoint that takes a body answers a validation failure with 400 VALIDATION_FAILED and fieldErrors keyed by field", async () => {
       const cases: [() => request.Test, string][] = [
         [() => request(app.server).post("/auth/register").send({ email: "x" }), "email"],
         [() => request(app.server).post("/auth/login").send({ email: "x" }), "email"],
@@ -72,7 +72,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
       }
     });
 
-    it("XC-05 A-ERR-04: a route that does not exist answers 404 in the error contract", async () => {
+    it("XC-017 A-ERR-04: a route that does not exist answers 404 in the error contract", async () => {
       const res = await request(app.server).get("/no/such/route").expect(404);
 
       expectErrorContract(res.body);
@@ -81,7 +81,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
   });
 
   describe("security", () => {
-    it("XC-06 A-SEC-01: every cookie — session and cart — is HttpOnly, SameSite=Lax same-site and SameSite=None; Secure cross-site", async () => {
+    it("XC-020 A-SEC-01: every cookie — session and cart — is HttpOnly, SameSite=Lax same-site and SameSite=None; Secure cross-site", async () => {
       for (const crossSite of [false, true]) {
         if (crossSite) process.env.CROSS_SITE_COOKIES = "true";
         else delete process.env.CROSS_SITE_COOKIES;
@@ -107,7 +107,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
       }
     });
 
-    it("XC-07 A-SEC-02: SQL and NoSQL injections in search, filters and path ids answer 200, 400 or 404 — never 500, never extra data", async () => {
+    it("XC-021 A-SEC-02: SQL and NoSQL injections in search, filters and path ids answer 200, 400 or 404 — never 500, never extra data", async () => {
       const payloads = ["' OR 1=1 --", "'; DROP TABLE \"User\"; --", '{"$ne": null}', "%' OR '%'='"];
 
       for (const payload of payloads) {
@@ -131,7 +131,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
       expect(await app.prisma.user.count()).toBe(1);
     });
 
-    it("XC-07 A-SEC-03: script in a name or an address is stored and served back verbatim as JSON data, not markup", async () => {
+    it("XC-022 A-SEC-03: script in a name or an address is stored and served back verbatim as JSON data, not markup", async () => {
       const script = `<script>alert("xss")</script><img src=x onerror=alert(1)>`;
 
       await request(app.server).patch("/users/me").set("Cookie", sam).send({ name: script }).expect(200);
@@ -149,7 +149,7 @@ describe("cross-cutting API (A-ERR, A-SEC, A-HEALTH)", () => {
     });
   });
 
-  it("XC-10 A-HEALTH-01: GET /health answers 200 ok", async () => {
+  it("XC-027 A-HEALTH-01: GET /health answers 200 ok", async () => {
     const res = await request(app.server).get("/health").expect(200);
 
     expect(res.body).toEqual({ status: "ok" });
@@ -174,7 +174,7 @@ describe("unexpected server errors (A-ERR-03)", () => {
     await nest.close();
   });
 
-  it("XC-05 A-ERR-03: an unexpected failure answers 500 in the same error contract, without the exception's details", async () => {
+  it("XC-018 A-ERR-03: an unexpected failure answers 500 in the same error contract, without the exception's details", async () => {
     const res = await request(nest.getHttpServer()).get("/products").expect(500);
 
     expectErrorContract(res.body);

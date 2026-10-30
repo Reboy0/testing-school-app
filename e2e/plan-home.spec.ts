@@ -5,7 +5,7 @@ import { expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 import { cardNames, createAccount, pageIndicator, signIn, waitForProducts } from "./plan-helpers";
 
-test("HP-01 E-HOME-01: a guest on / follows the sign-in and registration links to /login and /register", async ({ page }) => {
+test("HP-002 E-HOME-01: a guest on / follows the sign-in and registration links to /login and /register", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("main").getByRole("link", { name: "Log in" }).click();
   await expect(page).toHaveURL("/login");
@@ -15,7 +15,7 @@ test("HP-01 E-HOME-01: a guest on / follows the sign-in and registration links t
   await expect(page).toHaveURL("/register");
 });
 
-test("HP-02 E-HOME-02: a signed-in user on / is greeted by name, and the link goes to /profile", async ({ page, request }) => {
+test("HP-004 E-HOME-02: a signed-in user on / is greeted by name, and the link goes to /profile", async ({ page, request }) => {
   const account = await createAccount(request, "home");
   await signIn(page, account);
 
@@ -24,7 +24,7 @@ test("HP-02 E-HOME-02: a signed-in user on / is greeted by name, and the link go
   await expect(page).toHaveURL("/profile");
 });
 
-test("HP-04 E-HOME-03: search, filter, sort and paging on / behave like /catalogue and show the same products", async ({ page }) => {
+test("HP-008 E-HOME-03: search, filter, sort and paging on / behave like /catalogue and show the same products", async ({ page }) => {
   async function browse(path: string): Promise<{ names: string[]; indicator: string | null }> {
     await page.goto(path);
     await waitForProducts(page);

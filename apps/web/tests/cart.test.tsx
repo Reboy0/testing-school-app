@@ -70,13 +70,13 @@ function renderProbe() {
 }
 
 describe("CartProvider / useCart", () => {
-  it("is loading until the cart comes back", () => {
+  it("CRT-070: is loading until the cart comes back", () => {
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>(() => {})));
     renderProbe();
     expect(screen.getByText("Loading: true")).toBeInTheDocument();
   });
 
-  it("reads the cart once on mount", async () => {
+  it("CRT-071: reads the cart once on mount", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, cart()));
     vi.stubGlobal("fetch", fetchMock);
     renderProbe();
@@ -86,7 +86,7 @@ describe("CartProvider / useCart", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain("/cart");
   });
 
-  it("shows no cart rather than an error when the cart cannot be read", async () => {
+  it("CRT-072: shows no cart rather than an error when the cart cannot be read", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(500, { code: "INTERNAL_ERROR" })));
     renderProbe();
 
@@ -94,7 +94,7 @@ describe("CartProvider / useCart", () => {
     expect(screen.getByText("Loading: false")).toBeInTheDocument();
   });
 
-  it("adds an item and keeps what the server answered", async () => {
+  it("CRT-073: adds an item and keeps what the server answered", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(jsonResponse(200, emptyCart))
@@ -112,7 +112,7 @@ describe("CartProvider / useCart", () => {
     expect(JSON.parse(init.body)).toEqual({ productId: "prd_pen", quantity: 1 });
   });
 
-  it("changes a quantity through the line", async () => {
+  it("CRT-074: changes a quantity through the line", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(jsonResponse(200, cart()))
@@ -130,7 +130,7 @@ describe("CartProvider / useCart", () => {
     expect(JSON.parse(init.body)).toEqual({ quantity: 2 });
   });
 
-  it("removes a line", async () => {
+  it("CRT-075: removes a line", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(jsonResponse(200, cart()))

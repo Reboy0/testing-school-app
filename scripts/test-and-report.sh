@@ -6,7 +6,8 @@
 # Needs OPENCARDS_TOKEN in .env at the repository root (gitignored). The token
 # is read from that file and handed to curl on stdin — never printed and
 # never on a command line. Needs the API on :4000, the web app on :3000,
-# Postgres and Maildev up, as for `pnpm test`.
+# Postgres and Maildev up, as for `pnpm test`. NO_SEND=1 writes the reports
+# and stops there.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 root="$PWD"
@@ -21,6 +22,8 @@ JEST_JUNIT_OUTPUT_FILE="$root/reports/api-unit.xml" pnpm --filter @school/api ex
 JEST_JUNIT_OUTPUT_FILE="$root/reports/api-integration.xml" pnpm --filter @school/api exec jest --config test/jest-e2e.json --runInBand --ci --reporters=default --reporters=jest-junit
 pnpm --filter @school/web exec vitest run --reporter=default --reporter=junit "--outputFile.junit=$root/reports/web-component.xml"
 PLAYWRIGHT_JUNIT_OUTPUT_FILE="$root/reports/e2e.xml" pnpm --filter @school/e2e exec playwright test
+
+if [ -n "${NO_SEND:-}" ]; then echo "NO_SEND is set — reports are in reports/, not sent"; exit 0; fi
 
 token="$(grep -E '^OPENCARDS_TOKEN=' .env 2>/dev/null | tail -n1 | cut -d= -f2- | tr -d "\"' \r")"
 if [ -z "$token" ]; then echo "OPENCARDS_TOKEN is not set in $root/.env — reports are in reports/, not sent"; exit 0; fi

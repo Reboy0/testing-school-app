@@ -11,6 +11,7 @@ import { LoadingState } from "../components/LoadingState";
 import { ProductCard } from "../components/ProductCard";
 import type { Category } from "../lib/types";
 import { deferred, jsonResponse, page, product, stubApi } from "./plan-helpers";
+import { withIds } from "./ids";
 
 beforeEach(() => {
   vi.unstubAllGlobals();
@@ -27,7 +28,7 @@ const categories: Category[] = [
 const NO_FILTERS: CatalogueFilterValues = { q: "", category: "", minPrice: "", maxPrice: "", sort: "name_asc" };
 
 describe("ProductCard", () => {
-  it("CATL-01 C-CAT-01: a full-price product shows its name, price and image, and no sale", () => {
+  it("CATL-002 C-CAT-01: a full-price product shows its name, price and image, and no sale", () => {
     render(<ProductCard product={product()} onAdd={vi.fn()} />);
 
     expect(screen.getByRole("heading", { name: "Pen" })).toBeInTheDocument();
@@ -36,7 +37,7 @@ describe("ProductCard", () => {
     expect(screen.queryByText(/% off/)).not.toBeInTheDocument();
   });
 
-  it("CATL-01 C-CAT-01: a product on sale shows the old price struck through, the new price and the percentage", () => {
+  it("CATL-003 C-CAT-01: a product on sale shows the old price struck through, the new price and the percentage", () => {
     render(
       <ProductCard
         product={product({ name: "iPhone dock", priceCents: 1999, discountPercent: 25, effectivePriceCents: 1499 })}
@@ -49,7 +50,7 @@ describe("ProductCard", () => {
     expect(screen.getByText("25% off")).toBeInTheDocument();
   });
 
-  it("CATL-01 C-CAT-01: a product with no stock says plainly that it is out of stock", () => {
+  it("CATL-004 C-CAT-01: a product with no stock says plainly that it is out of stock", () => {
     render(<ProductCard product={product({ stock: 0 })} onAdd={vi.fn()} />);
 
     expect(screen.getByText(/out of stock/i)).toBeInTheDocument();
@@ -57,7 +58,7 @@ describe("ProductCard", () => {
 });
 
 describe("CatalogueFilters", () => {
-  it("SEARCH-04 C-CAT-03: the category list offers every category plus All categories", () => {
+  it("SEARCH-009 C-CAT-03: the category list offers every category plus All categories", () => {
     render(<CatalogueFilters categories={categories} value={NO_FILTERS} onChange={vi.fn()} />);
 
     const options = within(screen.getByLabelText("Category")).getAllByRole("option");
@@ -68,7 +69,7 @@ describe("CatalogueFilters", () => {
     ]);
   });
 
-  it("SEARCH-05 C-CAT-04: search, category, prices and sort each report the value chosen", async () => {
+  it("SEARCH-012 C-CAT-04: search, category, prices and sort each report the value chosen", async () => {
     const onChange = vi.fn();
     render(<CatalogueFilters categories={categories} value={NO_FILTERS} onChange={onChange} />);
 
@@ -92,7 +93,7 @@ describe("CatalogueFilters", () => {
 describe("Catalogue", () => {
   const products = [product({ id: "prd_a", name: "Apple" }), product({ id: "prd_b", name: "Bottle" })];
 
-  it("CATL-01 C-CAT-05: renders a card for every product in the response", async () => {
+  it("CATL-005 C-CAT-05: renders a card for every product in the response", async () => {
     stubApi(({ path }) => (path === "/categories" ? jsonResponse(200, categories) : jsonResponse(200, page(products))));
     render(<Catalogue onAddToCart={vi.fn()} />);
 
@@ -101,7 +102,7 @@ describe("Catalogue", () => {
     expect(screen.getAllByRole("button", { name: "Add to cart" })).toHaveLength(2);
   });
 
-  it("SORT-03 C-CAT-06: shows the page and the page count, Next asks for page + 1, and Next is unavailable on the last page", async () => {
+  it("SORT-013 C-CAT-06: shows the page and the page count, Next asks for page + 1, and Next is unavailable on the last page", async () => {
     const api = stubApi(({ path }) => {
       if (path === "/categories") return jsonResponse(200, categories);
       const requested = Number(new URLSearchParams(path.split("?")[1]).get("page"));
@@ -119,12 +120,12 @@ describe("Catalogue", () => {
     expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 
-  it.each([
+  it.each(withIds("SEARCH-018", "SEARCH-021", [
     ["search", async () => userEvent.type(screen.getByLabelText("Search"), "a")],
     ["category", async () => userEvent.selectOptions(screen.getByLabelText("Category"), "toys")],
     ["price", async () => userEvent.type(screen.getByLabelText("Lowest price (cents)"), "1")],
     ["sort", async () => userEvent.selectOptions(screen.getByLabelText("Sort by"), "price_asc")],
-  ])("SEARCH-08 C-CAT-07: changing the %s on page 3 asks for page 1 next", async (_filter, change) => {
+  ]))("%s C-CAT-07: changing the %s on page 3 asks for page 1 next", async (_id, _filter, change) => {
     const api = stubApi(({ path }) => {
       if (path === "/categories") return jsonResponse(200, categories);
       const requested = Number(new URLSearchParams(path.split("?")[1]).get("page"));
@@ -143,7 +144,7 @@ describe("Catalogue", () => {
     expect(new URLSearchParams(api.callsTo("/products").at(-1)!.path.split("?")[1]).get("page")).toBe("1");
   });
 
-  it("CATL-03 C-CAT-08: before the API answers it shows loading and never says nothing was found", () => {
+  it("CATL-012 C-CAT-08: before the API answers it shows loading and never says nothing was found", () => {
     stubApi(({ path }) => (path === "/categories" ? jsonResponse(200, categories) : new Promise<Response>(() => {})));
     render(<Catalogue onAddToCart={vi.fn()} />);
 
@@ -151,7 +152,7 @@ describe("Catalogue", () => {
     expect(screen.queryByText("No products found")).not.toBeInTheDocument();
   });
 
-  it("CATL-03 C-CAT-09: an empty response says No products found, and only once the response has arrived", async () => {
+  it("CATL-013 C-CAT-09: an empty response says No products found, and only once the response has arrived", async () => {
     const pending = deferred<Response>();
     stubApi(({ path }) => (path === "/categories" ? jsonResponse(200, categories) : pending.promise));
     render(<Catalogue onAddToCart={vi.fn()} />);
@@ -163,7 +164,7 @@ describe("Catalogue", () => {
     expect(screen.queryByText("Loading…")).not.toBeInTheDocument();
   });
 
-  it("CATL-04 C-CAT-10: an API failure shows a clear error rather than an empty list", async () => {
+  it("CATL-016 C-CAT-10: an API failure shows a clear error rather than an empty list", async () => {
     stubApi(({ path }) =>
       path === "/categories"
         ? jsonResponse(200, categories)
@@ -177,7 +178,7 @@ describe("Catalogue", () => {
 });
 
 describe("LoadingState", () => {
-  it("CATL-03 C-CAT-11: says Loading… at once, explains after the delay, is a polite live region, and clears its timer on unmount", () => {
+  it("CATL-014 C-CAT-11: says Loading… at once, explains after the delay, is a polite live region, and clears its timer on unmount", () => {
     vi.useFakeTimers();
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
     const { unmount } = render(<LoadingState escalateAfterMs={1000} />);

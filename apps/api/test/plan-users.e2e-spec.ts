@@ -42,33 +42,33 @@ describe("profile and addresses API (A-USER)", () => {
   const defaults = (addresses: AddressBody[]) => addresses.filter((address) => address.isDefault);
 
   describe("profile", () => {
-    it("PROF-01 A-USER-01: GET /users/me answers 200 with exactly id, email, name, phone, role and createdAt", async () => {
+    it("PROF-001 A-USER-01: GET /users/me answers 200 with exactly id, email, name, phone, role and createdAt", async () => {
       const res = await request(app.server).get("/users/me").set("Cookie", sam).expect(200);
 
       expect(Object.keys(res.body).sort()).toEqual(["createdAt", "email", "id", "name", "phone", "role"]);
       expect(res.body).toMatchObject({ id: "usr_sam", email: "sam@example.com", name: "Sam", phone: null, role: "USER" });
     });
 
-    it("PROF-01 A-USER-02: GET /users/me without signing in answers 401", async () => {
+    it("PROF-002 A-USER-02: GET /users/me without signing in answers 401", async () => {
       const res = await request(app.server).get("/users/me").expect(401);
 
       expectErrorContract(res.body);
     });
 
-    it("PROF-02 A-USER-03: GET /users/:id with your own id answers 200 with your own profile", async () => {
+    it("PROF-003 A-USER-03: GET /users/:id with your own id answers 200 with your own profile", async () => {
       const res = await request(app.server).get("/users/usr_sam").set("Cookie", sam).expect(200);
 
       expect(res.body).toMatchObject({ id: "usr_sam", email: "sam@example.com" });
     });
 
-    it("PROF-02 A-USER-04: GET /users/:id with somebody else's id answers 403 and reveals nothing of theirs", async () => {
+    it("PROF-004 A-USER-04: GET /users/:id with somebody else's id answers 403 and reveals nothing of theirs", async () => {
       const res = await request(app.server).get("/users/usr_dana").set("Cookie", sam);
 
       expect(res.status).toBe(403);
       expect(res.text).not.toContain("dana@example.com");
     });
 
-    it("PROF-03 A-USER-05: PATCH /users/me with only phone changes phone and leaves name as it was", async () => {
+    it("PROF-006 A-USER-05: PATCH /users/me with only phone changes phone and leaves name as it was", async () => {
       const res = await request(app.server).patch("/users/me").set("Cookie", sam).send({ phone: "+380501234567" }).expect(200);
 
       expect(res.body).toMatchObject({ phone: "+380501234567", name: "Sam" });
@@ -76,14 +76,14 @@ describe("profile and addresses API (A-USER)", () => {
       expect(reread.body).toMatchObject({ phone: "+380501234567", name: "Sam" });
     });
 
-    it("PROF-03 A-USER-06: PATCH /users/me with an invalid value answers 400 against that field", async () => {
+    it("PROF-007 A-USER-06: PATCH /users/me with an invalid value answers 400 against that field", async () => {
       const res = await request(app.server).patch("/users/me").set("Cookie", sam).send({ phone: "1" }).expect(400);
 
       expect(res.body.code).toBe("VALIDATION_FAILED");
       expect(res.body.fieldErrors).toEqual({ phone: ["Enter a valid phone number"] });
     });
 
-    it("PROF-04 A-USER-07: PATCH /users/me cannot change email, role or id", async () => {
+    it("PROF-011 A-USER-07: PATCH /users/me cannot change email, role or id", async () => {
       await request(app.server)
         .patch("/users/me")
         .set("Cookie", sam)
@@ -96,13 +96,13 @@ describe("profile and addresses API (A-USER)", () => {
   });
 
   describe("addresses", () => {
-    it("PROF-05 A-USER-08: the first address created answers 201 and becomes the default", async () => {
+    it("PROF-013 A-USER-08: the first address created answers 201 and becomes the default", async () => {
       const res = await addAddress(sam, home).expect(201);
 
       expect(res.body).toMatchObject({ ...home, isDefault: true });
     });
 
-    it("PROF-06 A-USER-09: creating a second address with isDefault makes it the one default and demotes the first", async () => {
+    it("PROF-019 A-USER-09: creating a second address with isDefault makes it the one default and demotes the first", async () => {
       const first = await addAddress(sam, home).expect(201);
       const second = await addAddress(sam, { ...work, isDefault: true }).expect(201);
 
@@ -111,7 +111,7 @@ describe("profile and addresses API (A-USER)", () => {
       expect(addresses.find((address) => address.id === first.body.id)?.isDefault).toBe(false);
     });
 
-    it("PROF-06 A-USER-10: patching an existing address to default leaves exactly that one as the default", async () => {
+    it("PROF-020 A-USER-10: patching an existing address to default leaves exactly that one as the default", async () => {
       await addAddress(sam, home).expect(201);
       const second = await addAddress(sam, work).expect(201);
 
@@ -124,7 +124,7 @@ describe("profile and addresses API (A-USER)", () => {
       expect(defaults(await listAddresses(sam)).map((address) => address.id)).toEqual([second.body.id]);
     });
 
-    it("PROF-05 A-USER-11: deleting the default address answers 204 and leaves at most one default among the rest", async () => {
+    it("PROF-014 A-USER-11: deleting the default address answers 204 and leaves at most one default among the rest", async () => {
       const first = await addAddress(sam, home).expect(201);
       await addAddress(sam, work).expect(201);
       await addAddress(sam, { ...work, label: "Cottage" }).expect(201);
@@ -136,7 +136,7 @@ describe("profile and addresses API (A-USER)", () => {
       expect(defaults(remaining).length).toBeLessThanOrEqual(1);
     });
 
-    it("PROF-07 A-USER-12: each of two users lists only their own addresses", async () => {
+    it("PROF-023 A-USER-12: each of two users lists only their own addresses", async () => {
       await addAddress(sam, home).expect(201);
       await addAddress(dana, work).expect(201);
 
@@ -144,7 +144,7 @@ describe("profile and addresses API (A-USER)", () => {
       expect((await listAddresses(dana)).map((address) => address.label)).toEqual(["Work"]);
     });
 
-    it("PROF-07 A-USER-13: patching or deleting somebody else's address is refused and leaves it as it was", async () => {
+    it("PROF-024 A-USER-13: patching or deleting somebody else's address is refused and leaves it as it was", async () => {
       const samsHome = await addAddress(sam, home).expect(201);
 
       const patched = await request(app.server)
@@ -158,7 +158,7 @@ describe("profile and addresses API (A-USER)", () => {
       expect(await listAddresses(sam)).toEqual([samsHome.body]);
     });
 
-    it("PROF-05 A-USER-14: patching or deleting an address id that does not exist answers 404 in the error contract", async () => {
+    it("PROF-015 A-USER-14: patching or deleting an address id that does not exist answers 404 in the error contract", async () => {
       const patched = await request(app.server).patch("/users/me/addresses/adr_missing").set("Cookie", sam).send({ label: "X" });
       const deleted = await request(app.server).delete("/users/me/addresses/adr_missing").set("Cookie", sam);
 
@@ -168,7 +168,7 @@ describe("profile and addresses API (A-USER)", () => {
       expectErrorContract(deleted.body);
     });
 
-    it("PROF-05 A-USER-15: creating an address with invalid fields answers 400 with an error against each one", async () => {
+    it("PROF-016 A-USER-15: creating an address with invalid fields answers 400 with an error against each one", async () => {
       const res = await addAddress(sam, { label: "", line1: "", city: "", postalCode: "", country: "Ukraine" }).expect(400);
 
       expect(res.body.code).toBe("VALIDATION_FAILED");

@@ -26,14 +26,14 @@ const errorsFor = (input: HTMLElement) => {
 const ADDRESS_LABELS = ["Label", "Street address", "City", "Postal code", "Country"];
 
 describe("labels", () => {
-  it("XC-02 C-USER-01: every profile field is found by its label", () => {
+  it("XC-006 C-USER-01: every profile field is found by its label", () => {
     render(<ProfileForm profile={sam} />);
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Phone")).toBeInTheDocument();
   });
 
-  it("XC-02 C-USER-05: all five address fields are found by their labels", () => {
+  it("XC-007 C-USER-05: all five address fields are found by their labels", () => {
     render(<AddressForm onCreated={vi.fn()} />);
 
     for (const label of ADDRESS_LABELS) {
@@ -41,7 +41,7 @@ describe("labels", () => {
     }
   });
 
-  it("XC-02 C-CAT-02: search, category, both prices and sort all have labels", () => {
+  it("XC-008 C-CAT-02: search, category, both prices and sort all have labels", () => {
     render(
       <CatalogueFilters
         categories={[]}
@@ -57,7 +57,7 @@ describe("labels", () => {
 });
 
 describe("field errors", () => {
-  it("XC-01 C-USER-04: fieldErrors.phone appears beside the phone field", async () => {
+  it("XC-002 C-USER-04: fieldErrors.phone appears beside the phone field", async () => {
     stubApi(() =>
       jsonResponse(400, { code: "VALIDATION_FAILED", message: "Check the highlighted fields", fieldErrors: { phone: ["Enter a valid phone number"] } }),
     );
@@ -72,7 +72,7 @@ describe("field errors", () => {
     expect(screen.getByLabelText("Name")).not.toHaveAttribute("aria-invalid");
   });
 
-  it("XC-01 C-USER-07: fieldErrors appear beside the address field they name, and the button is disabled while the request is in flight", async () => {
+  it("XC-003 C-USER-07: fieldErrors appear beside the address field they name, and the button is disabled while the request is in flight", async () => {
     const pending = deferred<Response>();
     stubApi(() => pending.promise);
     render(<AddressForm onCreated={vi.fn()} />);
@@ -97,7 +97,7 @@ describe("field errors", () => {
 });
 
 describe("apiFetch", () => {
-  it("XC-05 C-ERR-01: parses a success, returns undefined for 204, raises ApiError with or without fieldErrors, and always sends JSON with credentials", async () => {
+  it("XC-019 C-ERR-01: parses a success, returns undefined for 204, raises ApiError with or without fieldErrors, and always sends JSON with credentials", async () => {
     const fetchMock = vi
       .fn()
       .mockResolvedValueOnce(jsonResponse(200, { ok: 1 }))
@@ -142,7 +142,7 @@ describe("palette", () => {
     /\b(?:bg|text|border|ring|fill|stroke|from|via|to|outline|divide|placeholder|shadow|decoration|accent|caret)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black)(?:-\d{2,3})?\b/;
   const LITERAL = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/;
 
-  it("TH-04 U-THEME-01: no component or page names a colour outside the shared palette", () => {
+  it("TH-011 U-THEME-01: no component or page names a colour outside the shared palette", () => {
     const offenders: string[] = [];
     for (const file of [...sources(path.join(webRoot, "components")), ...sources(path.join(webRoot, "app"))]) {
       readFileSync(file, "utf8")

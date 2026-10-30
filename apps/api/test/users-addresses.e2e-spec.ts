@@ -28,7 +28,7 @@ describe("addresses", () => {
     country: "CH",
   };
 
-  it("lists only your own addresses", async () => {
+  it("PROF-027: lists only your own addresses", async () => {
     const sam = await loginAs(app, "sam@example.com", "Password123!");
     const dana = await loginAs(app, "dana@example.com", "Password123!");
     await request(app.server).post("/users/me/addresses").set("Cookie", sam.cookies).send(homeAddress).expect(201);
@@ -39,7 +39,7 @@ describe("addresses", () => {
     expect(res.body[0].label).toBe("Home");
   });
 
-  it("makes the first address the default", async () => {
+  it("PROF-028: makes the first address the default", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     const res = await request(app.server)
       .post("/users/me/addresses")
@@ -49,7 +49,7 @@ describe("addresses", () => {
     expect(res.body.isDefault).toBe(true);
   });
 
-  it("demotes the previous default when a second address is created as default", async () => {
+  it("PROF-029: demotes the previous default when a second address is created as default", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     const first = await request(app.server)
       .post("/users/me/addresses")
@@ -73,7 +73,7 @@ describe("addresses", () => {
     expect(res.body.filter((address: { isDefault: boolean }) => address.isDefault)).toHaveLength(1);
   });
 
-  it("refuses to update an address you do not own", async () => {
+  it("PROF-030: refuses to update an address you do not own", async () => {
     const sam = await loginAs(app, "sam@example.com", "Password123!");
     const dana = await loginAs(app, "dana@example.com", "Password123!");
     const created = await request(app.server)
@@ -90,7 +90,7 @@ describe("addresses", () => {
     expect(res.body.code).toBe("FORBIDDEN");
   });
 
-  it("deletes an address", async () => {
+  it("PROF-031: deletes an address", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     const created = await request(app.server)
       .post("/users/me/addresses")

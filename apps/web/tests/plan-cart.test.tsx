@@ -23,7 +23,7 @@ const dock = line({ id: "cln_dock", productId: "prd_dock", name: "iPhone dock", 
 const pens = line({ quantity: 2, lineTotalCents: 700, payableCents: 700 });
 
 describe("CartPanel", () => {
-  it("CRT-08 C-CART-01: shows each line's quantity and total, and the subtotal, discount and total", async () => {
+  it("CRT-029 C-CART-01: shows each line's quantity and total, and the subtotal, discount and total", async () => {
     stubApi(() => jsonResponse(200, cartOf([dock, pens])));
     withCart(<CartPanel />);
 
@@ -40,7 +40,7 @@ describe("CartPanel", () => {
     expect(within(totals).getByText("Total").nextSibling).toHaveTextContent("$51.98");
   });
 
-  it("CRT-05 C-CART-02: +1, −1 and Remove send the matching requests, and −1 on a quantity of 1 removes the line", async () => {
+  it("CRT-014 C-CART-02: +1, −1 and Remove send the matching requests, and −1 on a quantity of 1 removes the line", async () => {
     let current: Cart = cartOf([line({ quantity: 1 })]);
     const api = stubApi(({ method, body }) => {
       if (method === "PATCH") {
@@ -69,7 +69,7 @@ describe("CartPanel", () => {
     unmount();
   });
 
-  it("CRT-13 C-CART-03: an empty cart says so", async () => {
+  it("CRT-037 C-CART-03: an empty cart says so", async () => {
     stubApi(() => jsonResponse(200, cartOf([])));
     withCart(<CartPanel />);
 
@@ -78,7 +78,7 @@ describe("CartPanel", () => {
 });
 
 describe("CartBadge", () => {
-  it("CRT-09 C-CART-04: shows how many items the cart holds, 0 for an empty one, and links to the cart before it has loaded", async () => {
+  it("CRT-030 C-CART-04: shows how many items the cart holds, 0 for an empty one, and links to the cart before it has loaded", async () => {
     const pending = deferred<Response>();
     stubApi(() => pending.promise);
     withCart(<CartBadge />);
@@ -88,14 +88,14 @@ describe("CartBadge", () => {
     expect(await screen.findByRole("link", { name: "Cart (5)" })).toBeInTheDocument();
   });
 
-  it("CRT-09 C-CART-04: an empty cart shows 0", async () => {
+  it("CRT-031 C-CART-04: an empty cart shows 0", async () => {
     stubApi(() => jsonResponse(200, cartOf([])));
     withCart(<CartBadge />);
 
     expect(await screen.findByRole("link", { name: "Cart (0)" })).toBeInTheDocument();
   });
 
-  it("CRT-09 C-CART-05: after adding, changing and removing a line the badge shows what the server holds", async () => {
+  it("CRT-032 C-CART-05: after adding, changing and removing a line the badge shows what the server holds", async () => {
     let server: Cart = cartOf([]);
     stubApi(({ method, body }) => {
       if (method === "POST") server = cartOf([line({ quantity: 2, lineTotalCents: 700, payableCents: 700 })]);
@@ -136,7 +136,7 @@ describe("CartBadge", () => {
 });
 
 describe("Add to cart", () => {
-  it("CRT-12 C-CART-06: while adding, the button says so and sends no second request; afterwards the card shows how many the cart holds", async () => {
+  it("CRT-036 C-CART-06: while adding, the button says so and sends no second request; afterwards the card shows how many the cart holds", async () => {
     const adding = deferred<Response>();
     const api = stubApi(({ path, method }) => {
       if (path === "/cart" && method === "GET") return jsonResponse(200, cartOf([]));
@@ -159,7 +159,7 @@ describe("Add to cart", () => {
 });
 
 describe("CartProvider", () => {
-  it("CRT-13 C-CART-07: a cart that cannot be read is simply not shown, and nothing breaks", async () => {
+  it("CRT-038 C-CART-07: a cart that cannot be read is simply not shown, and nothing breaks", async () => {
     stubApi(() => jsonResponse(500, { code: "INTERNAL_ERROR", message: "Something went wrong", fieldErrors: null }));
     withCart(
       <>

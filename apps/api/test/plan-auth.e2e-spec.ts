@@ -45,7 +45,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("registration", () => {
     const body = { email: "new@example.com", name: "New User", password: "Abcdefghi1" };
 
-    it("REG-01 A-AUTH-01: registering with valid details answers 201 with the new account and sets both session cookies", async () => {
+    it("REG-002 A-AUTH-01: registering with valid details answers 201 with the new account and sets both session cookies", async () => {
       const res = await register(body).expect(201);
 
       const user = await app.prisma.user.findUniqueOrThrow({ where: { email: body.email } });
@@ -55,7 +55,7 @@ describe("authentication API (A-AUTH)", () => {
       expect(setCookie(res, "refresh_token")).toBeDefined();
     });
 
-    it("REG-02 A-AUTH-02: a password of exactly 10 characters is accepted and one of 9 is rejected against password", async () => {
+    it("REG-008 A-AUTH-02: a password of exactly 10 characters is accepted and one of 9 is rejected against password", async () => {
       await register({ ...body, password: "Abcdefghi1" }).expect(201);
 
       const res = await register({ ...body, email: "nine@example.com", password: "Abcdefgh1" }).expect(400);
@@ -63,7 +63,7 @@ describe("authentication API (A-AUTH)", () => {
       expect(res.body.fieldErrors.password).toEqual(["Password must be at least 10 characters"]);
     });
 
-    it("REG-02 A-AUTH-03: a password breaking several rules reports every one of them against password", async () => {
+    it("REG-009 A-AUTH-03: a password breaking several rules reports every one of them against password", async () => {
       const res = await register({ ...body, password: "abc" }).expect(400);
 
       expect(res.body.fieldErrors.password).toEqual(
@@ -76,7 +76,7 @@ describe("authentication API (A-AUTH)", () => {
       expect(res.body.fieldErrors.password).toHaveLength(3);
     });
 
-    it("REG-04 A-AUTH-04: registering an email that already exists answers 409, in the same case or in another", async () => {
+    it("REG-022 A-AUTH-04: registering an email that already exists answers 409, in the same case or in another", async () => {
       await register(body).expect(201);
 
       const same = await register(body).expect(409);
@@ -88,7 +88,7 @@ describe("authentication API (A-AUTH)", () => {
   });
 
   describe("passwords", () => {
-    it("REG-05 A-AUTH-05: no response from register, login, GET /users/me, GET /users/:id or PATCH /users/me carries the password or its hash", async () => {
+    it("REG-026 A-AUTH-05: no response from register, login, GET /users/me, GET /users/:id or PATCH /users/me carries the password or its hash", async () => {
       const registered = await register({ email: "ada@example.com", name: "Ada", password: "Abcdefghi1" }).expect(201);
       const { passwordHash } = await app.prisma.user.findUniqueOrThrow({ where: { email: "ada@example.com" } });
       const signedIn = await login("ada@example.com", "Abcdefghi1").expect(200);
@@ -109,7 +109,7 @@ describe("authentication API (A-AUTH)", () => {
       }
     });
 
-    it("REG-05 A-AUTH-06: the stored user record holds a hash of the password, never the password itself", async () => {
+    it("REG-027 A-AUTH-06: the stored user record holds a hash of the password, never the password itself", async () => {
       await register({ email: "ada@example.com", name: "Ada", password: "Abcdefghi1" }).expect(201);
 
       const { passwordHash } = await app.prisma.user.findUniqueOrThrow({ where: { email: "ada@example.com" } });
@@ -122,7 +122,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("sign-in", () => {
     beforeEach(() => createUser(app.prisma, { id: "usr_sam", email: "sam@example.com", password: PASSWORD }));
 
-    it("LOGIN-01 A-AUTH-07: signing in answers 200 with two HttpOnly cookies that live about 15 minutes and 30 days", async () => {
+    it("LOGIN-005 A-AUTH-07: signing in answers 200 with two HttpOnly cookies that live about 15 minutes and 30 days", async () => {
       const res = await login("sam@example.com", PASSWORD).expect(200);
 
       const access = setCookie(res, "access_token");
@@ -133,14 +133,14 @@ describe("authentication API (A-AUTH)", () => {
       expect(maxAgeOf(refreshToken)).toBe(30 * 24 * 60 * 60);
     });
 
-    it("LOGIN-01 A-AUTH-08: the access cookie from sign-in opens GET /users/me", async () => {
+    it("LOGIN-006 A-AUTH-08: the access cookie from sign-in opens GET /users/me", async () => {
       const { cookies } = await loginAs(app, "sam@example.com", PASSWORD);
 
       const res = await request(app.server).get("/users/me").set("Cookie", cookies).expect(200);
       expect(res.body.id).toBe("usr_sam");
     });
 
-    it("LOGIN-02 A-AUTH-09: an access token past its expiry is refused with 401", async () => {
+    it("LOGIN-008 A-AUTH-09: an access token past its expiry is refused with 401", async () => {
       const jwt = new JwtService({ secret: process.env.JWT_SECRET });
       const expired = jwt.sign({ sub: "usr_sam", role: "USER", exp: Math.floor(Date.now() / 1000) - 60 });
 
@@ -148,7 +148,7 @@ describe("authentication API (A-AUTH)", () => {
       expectErrorContract(res.body);
     });
 
-    it("LOGIN-03 A-AUTH-10: a wrong password for a known email and an unknown email both answer 401 with byte-identical bodies", async () => {
+    it("LOGIN-010 A-AUTH-10: a wrong password for a known email and an unknown email both answer 401 with byte-identical bodies", async () => {
       const wrongPassword = await login("sam@example.com", "WrongPassword1");
       const unknownEmail = await login("nobody@example.com", "WrongPassword1");
 
@@ -157,7 +157,7 @@ describe("authentication API (A-AUTH)", () => {
       expect(unknownEmail.text).toBe(wrongPassword.text);
     });
 
-    it("LOGIN-03 A-AUTH-11: signing in with an empty or invalid body answers 400 in the error contract", async () => {
+    it("LOGIN-011 A-AUTH-11: signing in with an empty or invalid body answers 400 in the error contract", async () => {
       const empty = await request(app.server).post("/auth/login").send({}).expect(400);
       expectErrorContract(empty.body);
       expect(Object.keys(empty.body.fieldErrors).sort()).toEqual(["email", "password"]);
@@ -171,7 +171,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("session refresh", () => {
     beforeEach(() => createUser(app.prisma, { id: "usr_sam", email: "sam@example.com", password: PASSWORD }));
 
-    it("LOGIN-04 A-AUTH-12: refreshing with a valid refresh token answers 200 with a different refresh token", async () => {
+    it("LOGIN-017 A-AUTH-12: refreshing with a valid refresh token answers 200 with a different refresh token", async () => {
       const signedIn = await login("sam@example.com", PASSWORD).expect(200);
 
       const refreshed = await refresh(refreshCookie(signedIn)).expect(200);
@@ -179,14 +179,14 @@ describe("authentication API (A-AUTH)", () => {
       expect(setCookie(refreshed, "access_token")).toBeDefined();
     });
 
-    it("LOGIN-04 A-AUTH-13: refreshing again with the token that was just rotated answers 401", async () => {
+    it("LOGIN-018 A-AUTH-13: refreshing again with the token that was just rotated answers 401", async () => {
       const signedIn = await login("sam@example.com", PASSWORD).expect(200);
       await refresh(refreshCookie(signedIn)).expect(200);
 
       await refresh(refreshCookie(signedIn)).expect(401);
     });
 
-    it("LOGIN-04 A-AUTH-14: a refresh token presented after its 30 days are up answers 401", async () => {
+    it("LOGIN-019 A-AUTH-14: a refresh token presented after its 30 days are up answers 401", async () => {
       const signedIn = await login("sam@example.com", PASSWORD).expect(200);
       // Thirty days and a minute pass: move the stored expiry back by that much.
       const row = await app.prisma.refreshToken.findUniqueOrThrow({
@@ -200,7 +200,7 @@ describe("authentication API (A-AUTH)", () => {
       await refresh(refreshCookie(signedIn)).expect(401);
     });
 
-    it("LOGIN-04 A-AUTH-15: an unknown refresh token and no refresh cookie at all both answer 401", async () => {
+    it("LOGIN-020 A-AUTH-15: an unknown refresh token and no refresh cookie at all both answer 401", async () => {
       const unknown = await refresh([`refresh_token=${generateToken()}`]).expect(401);
       expectErrorContract(unknown.body);
 
@@ -212,7 +212,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("password reset", () => {
     beforeEach(() => createUser(app.prisma, { id: "usr_sam", email: "sam@example.com", password: PASSWORD }));
 
-    it("PWD-01 A-AUTH-16: forgot-password → token from the Maildev email → reset-password changes the password", async () => {
+    it("PWD-002 A-AUTH-16: forgot-password → token from the Maildev email → reset-password changes the password", async () => {
       const token = await issueResetToken("sam@example.com");
 
       await reset(token, "BrandNewPass1").expect(204);
@@ -221,7 +221,7 @@ describe("authentication API (A-AUTH)", () => {
       await login("sam@example.com", "BrandNewPass1").expect(200);
     });
 
-    it("PWD-02 A-AUTH-17: a reset token that has been used once is refused the second time, and the password stays as first set", async () => {
+    it("PWD-005 A-AUTH-17: a reset token that has been used once is refused the second time, and the password stays as first set", async () => {
       const token = await issueResetToken("sam@example.com");
       await reset(token, "BrandNewPass1").expect(204);
 
@@ -233,7 +233,7 @@ describe("authentication API (A-AUTH)", () => {
       await login("sam@example.com", "BrandNewPass1").expect(200);
     });
 
-    it("PWD-02 A-AUTH-18: a reset token redeemed more than 15 minutes after it was issued is refused", async () => {
+    it("PWD-006 A-AUTH-18: a reset token redeemed more than 15 minutes after it was issued is refused", async () => {
       const token = await issueResetToken("sam@example.com");
       // Sixteen minutes pass: move the stored expiry back by that much.
       const row = await app.prisma.passwordResetToken.findUniqueOrThrow({ where: { tokenHash: hashToken(token) } });
@@ -246,14 +246,14 @@ describe("authentication API (A-AUTH)", () => {
       await login("sam@example.com", PASSWORD).expect(200);
     });
 
-    it("PWD-02 A-AUTH-19: a reset token that was never issued is refused", async () => {
+    it("PWD-007 A-AUTH-19: a reset token that was never issued is refused", async () => {
       const res = await reset(generateToken(), "BrandNewPass1").expect(400);
 
       expect(res.body.code).toBe("INVALID_TOKEN");
       await login("sam@example.com", PASSWORD).expect(200);
     });
 
-    it("PWD-03 A-AUTH-20: redeeming a reset token ends every other session: refresh from each one answers 401", async () => {
+    it("PWD-011 A-AUTH-20: redeeming a reset token ends every other session: refresh from each one answers 401", async () => {
       const first = await login("sam@example.com", PASSWORD).expect(200);
       const second = await login("sam@example.com", PASSWORD).expect(200);
 
@@ -263,7 +263,7 @@ describe("authentication API (A-AUTH)", () => {
       await refresh(refreshCookie(second)).expect(401);
     });
 
-    it("PWD-04 A-AUTH-21: a new password that breaks the AUTH-01 rules is refused against password", async () => {
+    it("PWD-013 A-AUTH-21: a new password that breaks the AUTH-01 rules is refused against password", async () => {
       const token = await issueResetToken("sam@example.com");
 
       const res = await reset(token, "weak").expect(400);
@@ -272,7 +272,7 @@ describe("authentication API (A-AUTH)", () => {
       await login("sam@example.com", PASSWORD).expect(200);
     });
 
-    it("PWD-05 A-AUTH-24: forgot-password answers 202 with the same body for a registered and an unregistered address, and sends nothing for the unregistered one", async () => {
+    it("PWD-014 A-AUTH-24: forgot-password answers 202 with the same body for a registered and an unregistered address, and sends nothing for the unregistered one", async () => {
       const unknown = await forgot("nobody@example.com").expect(202);
       await wait(500);
       expect(await app.prisma.passwordResetToken.count()).toBe(0);
@@ -284,7 +284,7 @@ describe("authentication API (A-AUTH)", () => {
       expect(await app.prisma.passwordResetToken.count()).toBe(1);
     });
 
-    it("PWD-06 A-AUTH-25: forgot-password with an invalid email answers 400 against email", async () => {
+    it("PWD-016 A-AUTH-25: forgot-password with an invalid email answers 400 against email", async () => {
       const res = await forgot("not-an-email").expect(400);
 
       expect(res.body.code).toBe("VALIDATION_FAILED");
@@ -295,7 +295,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("sign-out", () => {
     beforeEach(() => createUser(app.prisma, { id: "usr_sam", email: "sam@example.com", password: PASSWORD }));
 
-    it("LOGIN-06 A-AUTH-22: signing out answers 204 and clears both cookies with the attributes they were set with", async () => {
+    it("LOGIN-025 A-AUTH-22: signing out answers 204 and clears both cookies with the attributes they were set with", async () => {
       const signedIn = await login("sam@example.com", PASSWORD).expect(200);
 
       const res = await request(app.server).post("/auth/logout").set("Cookie", setCookies(signedIn)).expect(204);
@@ -308,7 +308,7 @@ describe("authentication API (A-AUTH)", () => {
       }
     });
 
-    it("LOGIN-06 A-AUTH-23: a refresh token kept from before sign-out is refused afterwards, because the server revoked it", async () => {
+    it("LOGIN-026 A-AUTH-23: a refresh token kept from before sign-out is refused afterwards, because the server revoked it", async () => {
       const signedIn = await login("sam@example.com", PASSWORD).expect(200);
       const kept = refreshCookie(signedIn);
 
@@ -321,7 +321,7 @@ describe("authentication API (A-AUTH)", () => {
   describe("protected endpoints", () => {
     beforeEach(() => createUser(app.prisma, { id: "usr_sam", email: "sam@example.com", password: PASSWORD }));
 
-    it("LOGIN-02 A-AUTH-26: without a cookie, with a forged JWT, or with a JWT signed by another key, protected endpoints answer 401", async () => {
+    it("LOGIN-009 A-AUTH-26: without a cookie, with a forged JWT, or with a JWT signed by another key, protected endpoints answer 401", async () => {
       const otherKey = new JwtService({ secret: "not-the-server-secret" }).sign({ sub: "usr_sam", role: "USER" });
       const credentials: string[][] = [[], ["access_token=forged.jwt.value"], [`access_token=${otherKey}`]];
       const endpoints = [

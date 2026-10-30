@@ -58,7 +58,7 @@ beforeEach(() => {
 });
 
 describe("CartPanel", () => {
-  it("shows a row per line with its quantity and what that line costs", () => {
+  it("CRT-064: shows a row per line with its quantity and what that line costs", () => {
     render(<CartPanel />);
 
     const rows = screen.getAllByRole("listitem");
@@ -70,7 +70,7 @@ describe("CartPanel", () => {
     expect(within(rows[1]).getByText("$14.99")).toBeInTheDocument();
   });
 
-  it("shows the subtotal, what is off and what is payable", () => {
+  it("CRT-065: shows the subtotal, what is off and what is payable", () => {
     render(<CartPanel />);
 
     expect(screen.getByText("$26.99")).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe("CartPanel", () => {
     expect(screen.getByText("$21.99")).toBeInTheDocument();
   });
 
-  it("asks for one more of a line", async () => {
+  it("CRT-066: asks for one more of a line", async () => {
     render(<CartPanel />);
 
     await userEvent.click(screen.getByRole("button", { name: "Add one more Pen" }));
@@ -86,7 +86,7 @@ describe("CartPanel", () => {
     expect(setQuantity).toHaveBeenCalledWith("cln_pen", 3);
   });
 
-  it("asks for one fewer of a line", async () => {
+  it("CRT-067: asks for one fewer of a line", async () => {
     render(<CartPanel />);
 
     await userEvent.click(screen.getByRole("button", { name: "Remove one Pen" }));
@@ -94,7 +94,7 @@ describe("CartPanel", () => {
     expect(setQuantity).toHaveBeenCalledWith("cln_pen", 1);
   });
 
-  it("removes a line", async () => {
+  it("CRT-068: removes a line", async () => {
     render(<CartPanel />);
 
     await userEvent.click(screen.getByRole("button", { name: "Remove Pen from the cart" }));
@@ -102,7 +102,7 @@ describe("CartPanel", () => {
     expect(removeLine).toHaveBeenCalledWith("cln_pen");
   });
 
-  it("says when there is nothing in the cart", () => {
+  it("CRT-069: says when there is nothing in the cart", () => {
     useCartMock.mockReturnValue({
       cart: { id: null, itemCount: 0, lines: [], subtotalCents: 0, discountCents: 0, payableCents: 0 },
       loading: false,

@@ -13,7 +13,7 @@ async function open(page: Page, path: string) {
   await page.waitForLoadState("networkidle");
 }
 
-test("XC-08 UI-RESP-01: /, /catalogue, /cart and /profile have no horizontal scroll at 375, 768 and 1280 px, and keep the header, cart badge and theme toggle", async ({ page }) => {
+test("XC-023 UI-RESP-01: /, /catalogue, /cart and /profile have no horizontal scroll at 375, 768 and 1280 px, and keep the header, cart badge and theme toggle", async ({ page }) => {
   await createAccount(page.request, "responsive");
   const problems: string[] = [];
 

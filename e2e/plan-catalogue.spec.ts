@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   await waitForProducts(page);
 });
 
-test("SEARCH-01 E-CAT-01: a search on /catalogue shows only products whose names contain it", async ({ page }) => {
+test("SEARCH-003 E-CAT-01: a search on /catalogue shows only products whose names contain it", async ({ page }) => {
   await page.getByLabel("Search").fill("DESK");
 
   await expect(cards(page).first()).toBeVisible();
@@ -19,7 +19,7 @@ test("SEARCH-01 E-CAT-01: a search on /catalogue shows only products whose names
   expect(names.length).toBeGreaterThan(0);
 });
 
-test("SEARCH-05 E-CAT-02: with a category and a price range, every product shown meets both and none that does is missing", async ({ page, request }) => {
+test("SEARCH-013 E-CAT-02: with a category and a price range, every product shown meets both and none that does is missing", async ({ page, request }) => {
   // The expectation is built from the category filter alone, priced by hand
   // here, so it does not lean on the combined filter under test.
   const expected = (await allProductsFromApi(request, "category=furniture"))
@@ -35,7 +35,7 @@ test("SEARCH-05 E-CAT-02: with a category and a price range, every product shown
   await expect.poll(async () => (await cardNames(page)).sort()).toEqual(expected);
 });
 
-test("SORT-01 E-CAT-03: sorting by price puts the prices on the page in order, both ways", async ({ page }) => {
+test("SORT-004 E-CAT-03: sorting by price puts the prices on the page in order, both ways", async ({ page }) => {
   await page.getByLabel("Sort by").selectOption("price_asc");
   await expect.poll(async () => {
     const prices = await listPricesCents(page);
@@ -49,7 +49,7 @@ test("SORT-01 E-CAT-03: sorting by price puts the prices on the page in order, b
   }).toBe(true);
 });
 
-test("SORT-04 E-CAT-04: the last page can be reached and has products on it, so every product is on some page", async ({ page, request }) => {
+test("SORT-019 E-CAT-04: the last page can be reached and has products on it, so every product is on some page", async ({ page, request }) => {
   const { total } = await (await request.get(`${API_URL}/products`)).json();
   const seen = new Set(await cardNames(page));
 
@@ -64,7 +64,7 @@ test("SORT-04 E-CAT-04: the last page can be reached and has products on it, so 
   expect(seen.size).toBe(total);
 });
 
-test("SEARCH-08 E-CAT-05: changing a filter on page 2 goes back to page 1", async ({ page }) => {
+test("SEARCH-022 E-CAT-05: changing a filter on page 2 goes back to page 1", async ({ page }) => {
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(pageIndicator(page)).toHaveText(/^Page 2 of/);
 
@@ -73,7 +73,7 @@ test("SEARCH-08 E-CAT-05: changing a filter on page 2 goes back to page 1", asyn
   await expect(pageIndicator(page)).toHaveText(/^Page 1 of/);
 });
 
-test("CATL-03 E-CAT-06: on a slow network the catalogue shows it is loading and never flashes No products found", async ({ page }) => {
+test("CATL-015 E-CAT-06: on a slow network the catalogue shows it is loading and never flashes No products found", async ({ page }) => {
   await page.route("**/products?**", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await route.continue();

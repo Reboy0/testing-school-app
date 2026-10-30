@@ -16,12 +16,12 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 describe("ResetPasswordForm", () => {
-  it("labels the new-password input", () => {
+  it("PWD-030: labels the new-password input", () => {
     render(<ResetPasswordForm />);
     expect(screen.getByLabelText("New password")).toBeInTheDocument();
   });
 
-  it("sends the token from the query string", async () => {
+  it("PWD-031: sends the token from the query string", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(204, {}));
     vi.stubGlobal("fetch", fetchMock);
     render(<ResetPasswordForm />);
@@ -31,7 +31,7 @@ describe("ResetPasswordForm", () => {
     expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({ token: "abc123", password: "BrandNewPass1" });
   });
 
-  it("navigates to sign-in after a successful reset", async () => {
+  it("PWD-032: navigates to sign-in after a successful reset", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(204, {})));
     render(<ResetPasswordForm />);
     await userEvent.type(screen.getByLabelText("New password"), "BrandNewPass1");
@@ -39,7 +39,7 @@ describe("ResetPasswordForm", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/login"));
   });
 
-  it("shows the API's message when the link is no longer valid", async () => {
+  it("PWD-033: shows the API's message when the link is no longer valid", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(400, { code: "INVALID_TOKEN", message: "This reset link is no longer valid", fieldErrors: null }),
     ));

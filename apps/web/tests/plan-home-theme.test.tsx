@@ -11,6 +11,7 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { CartProvider } from "../lib/cart";
 import { SessionProvider } from "../lib/session";
 import { cartOf, jsonResponse, page, product, sam, stubApi, unauthenticated } from "./plan-helpers";
+import { withIds } from "./ids";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -43,7 +44,7 @@ const renderHome = () =>
   );
 
 describe("HomePage", () => {
-  it("HP-01 C-HOME-01: a guest is told what the app is and offered sign-in and registration, with no greeting", async () => {
+  it("HP-001 C-HOME-01: a guest is told what the app is and offered sign-in and registration, with no greeting", async () => {
     stubShop(unauthenticated);
     renderHome();
 
@@ -53,7 +54,7 @@ describe("HomePage", () => {
     expect(screen.queryByText(/Welcome back/)).not.toBeInTheDocument();
   });
 
-  it("HP-02 C-HOME-02: a signed-in user is greeted by name with a link to their profile, and no guest prompts", async () => {
+  it("HP-003 C-HOME-02: a signed-in user is greeted by name with a link to their profile, and no guest prompts", async () => {
     stubShop(() => jsonResponse(200, sam));
     renderHome();
 
@@ -63,7 +64,7 @@ describe("HomePage", () => {
     expect(screen.queryByRole("link", { name: "Create an account" })).not.toBeInTheDocument();
   });
 
-  it("HP-03 C-HOME-03: while the session loads it shows loading, and neither the guest prompts nor a greeting", () => {
+  it("HP-005 C-HOME-03: while the session loads it shows loading, and neither the guest prompts nor a greeting", () => {
     stubShop(() => new Promise<Response>(() => {}));
     renderHome();
 
@@ -72,10 +73,10 @@ describe("HomePage", () => {
     expect(screen.queryByText(/Welcome back/)).not.toBeInTheDocument();
   });
 
-  it.each([
+  it.each(withIds("HP-006", "HP-007", [
     ["a guest", unauthenticated],
     ["a signed-in user", () => jsonResponse(200, sam)],
-  ])("HP-04 C-HOME-04: the catalogue is shown to %s", async (_who, session) => {
+  ]))("%s C-HOME-04: the catalogue is shown to %s", async (_id, _who, session) => {
     stubShop(session);
     renderHome();
 
@@ -86,7 +87,7 @@ describe("HomePage", () => {
 });
 
 describe("ThemeToggle", () => {
-  it("TH-01 C-THEME-01: has an accessible name and switches light ↔ dark", async () => {
+  it("TH-001 C-THEME-01: has an accessible name and switches light ↔ dark", async () => {
     render(<ThemeToggle />);
 
     const toggle = await screen.findByRole("button", { name: "Switch to the dark theme" });
@@ -100,10 +101,10 @@ describe("ThemeToggle", () => {
     expect(toggle).toHaveAccessibleName("Switch to the dark theme");
   });
 
-  it.each([
+  it.each(withIds("TH-002", "TH-003", [
     ["a guest", unauthenticated],
     ["a signed-in user", () => jsonResponse(200, sam)],
-  ])("TH-01 C-THEME-01: the header offers the toggle to %s", async (_who, session) => {
+  ]))("%s C-THEME-01: the header offers the toggle to %s", async (_id, _who, session) => {
     stubShop(session);
     render(
       <SessionProvider>
@@ -117,7 +118,7 @@ describe("ThemeToggle", () => {
     expect(screen.getByRole("button", { name: /Switch to the (dark|light) theme/ })).toBeInTheDocument();
   });
 
-  it("TH-02 C-THEME-02: the choice is written to storage, and a stored choice is read when the toggle mounts", async () => {
+  it("TH-007 C-THEME-02: the choice is written to storage, and a stored choice is read when the toggle mounts", async () => {
     const first = render(<ThemeToggle />);
     await userEvent.click(await screen.findByRole("button", { name: "Switch to the dark theme" }));
     expect(window.localStorage.getItem("theme")).toBe("dark");

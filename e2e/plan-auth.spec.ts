@@ -5,7 +5,7 @@
 import { expect, test } from "./fixtures";
 import { API_URL, createAccount, header, resetLinkFor, signIn, signInThroughForm, uniqueEmail } from "./plan-helpers";
 
-test("REG-01 E-AUTH-01: registering through /register lands on / with the new name in the header", async ({ page }) => {
+test("REG-003 E-AUTH-01: registering through /register lands on / with the new name in the header", async ({ page }) => {
   const email = uniqueEmail("register");
 
   await page.goto("/register");
@@ -18,7 +18,7 @@ test("REG-01 E-AUTH-01: registering through /register lands on / with the new na
   await expect(header(page).getByRole("link", { name: "Ada Lovelace" })).toBeVisible();
 });
 
-test("REG-02 E-AUTH-02: a weak password and then a taken email are each reported, and the page stays on /register", async ({ page, request }) => {
+test("REG-011 E-AUTH-02: a weak password and then a taken email are each reported, and the page stays on /register", async ({ page, request }) => {
   const taken = await createAccount(request, "taken");
 
   await page.goto("/register");
@@ -40,7 +40,7 @@ test("REG-02 E-AUTH-02: a weak password and then a taken email are each reported
   await expect(page).toHaveURL("/register");
 });
 
-test("LOGIN-01 E-AUTH-03: after signing in, /profile survives a reload still signed in", async ({ page, request }) => {
+test("LOGIN-007 E-AUTH-03: after signing in, /profile survives a reload still signed in", async ({ page, request }) => {
   const account = await createAccount(request, "reload");
   await signIn(page, account);
 
@@ -52,7 +52,7 @@ test("LOGIN-01 E-AUTH-03: after signing in, /profile survives a reload still sig
   await expect(page).toHaveURL("/profile");
 });
 
-test("LOGIN-03 E-AUTH-04: a wrong password shows an error and stays on the sign-in page", async ({ page, request }) => {
+test("LOGIN-013 E-AUTH-04: a wrong password shows an error and stays on the sign-in page", async ({ page, request }) => {
   const account = await createAccount(request, "wrong");
 
   await page.goto("/login");
@@ -62,7 +62,7 @@ test("LOGIN-03 E-AUTH-04: a wrong password shows an error and stays on the sign-
   await expect(page).toHaveURL("/login");
 });
 
-test("LOGIN-05 E-AUTH-05: a guest sent from /profile to sign in comes back to /profile afterwards", async ({ page, request }) => {
+test("LOGIN-024 E-AUTH-05: a guest sent from /profile to sign in comes back to /profile afterwards", async ({ page, request }) => {
   const account = await createAccount(request, "return");
 
   await page.goto("/profile");
@@ -72,7 +72,7 @@ test("LOGIN-05 E-AUTH-05: a guest sent from /profile to sign in comes back to /p
   await expect(page).toHaveURL("/profile");
 });
 
-test("PWD-01 E-AUTH-06: forgot password → email in Maildev → link → new password → the new one signs in and the old one does not", async ({ page, request }) => {
+test("PWD-004 E-AUTH-06: forgot password → email in Maildev → link → new password → the new one signs in and the old one does not", async ({ page, request }) => {
   const account = await createAccount(request, "reset");
 
   await page.goto("/forgot-password");
@@ -92,7 +92,7 @@ test("PWD-01 E-AUTH-06: forgot password → email in Maildev → link → new pa
   await expect(page).toHaveURL("/");
 });
 
-test("PWD-02 E-AUTH-07: following the same reset link a second time is refused", async ({ page, request }) => {
+test("PWD-010 E-AUTH-07: following the same reset link a second time is refused", async ({ page, request }) => {
   const account = await createAccount(request, "relink");
   await request.post(`${API_URL}/auth/forgot-password`, { data: { email: account.email } });
   const link = await resetLinkFor(account.email);
@@ -110,7 +110,7 @@ test("PWD-02 E-AUTH-07: following the same reset link a second time is refused",
   await expect(page).toHaveURL(/\/reset-password/);
 });
 
-test("PWD-03 E-AUTH-08: resetting the password in one browser ends the session in another", async ({ browser, request }) => {
+test("PWD-012 E-AUTH-08: resetting the password in one browser ends the session in another", async ({ browser, request }) => {
   const account = await createAccount(request, "twobrowsers");
   const other = await browser.newContext();
   const otherPage = await other.newPage();
@@ -130,7 +130,7 @@ test("PWD-03 E-AUTH-08: resetting the password in one browser ends the session i
   await other.close();
 });
 
-test("LOGIN-06 E-AUTH-09: after Sign out, a reload and Back both show a guest, and /profile asks for sign-in again", async ({ page, request }) => {
+test("LOGIN-028 E-AUTH-09: after Sign out, a reload and Back both show a guest, and /profile asks for sign-in again", async ({ page, request }) => {
   const account = await createAccount(request, "signout");
   await signIn(page, account);
   await page.goto("/profile");
@@ -149,7 +149,7 @@ test("LOGIN-06 E-AUTH-09: after Sign out, a reload and Back both show a guest, a
   await expect(page).toHaveURL(/\/login/);
 });
 
-test("LOGIN-07 E-AUTH-10: clicking your name in the header opens /profile", async ({ page, request }) => {
+test("LOGIN-032 E-AUTH-10: clicking your name in the header opens /profile", async ({ page, request }) => {
   const account = await createAccount(request, "namelink");
   await signIn(page, account);
 

@@ -9,7 +9,7 @@ describe("POST /auth/register", () => {
 
   const body = { email: "new@example.com", password: "Password123!", name: "New User" };
 
-  it("creates an account and sets both cookies", async () => {
+  it("REG-031: creates an account and sets both cookies", async () => {
     const res = await request(app.server).post("/auth/register").send(body).expect(201);
     const cookies = res.get("set-cookie") ?? [];
     expect(cookies.some((c) => c.startsWith("access_token="))).toBe(true);
@@ -17,18 +17,18 @@ describe("POST /auth/register", () => {
     expect(cookies.every((c) => c.includes("HttpOnly"))).toBe(true);
   });
 
-  it("never returns the password hash", async () => {
+  it("REG-032: never returns the password hash", async () => {
     const res = await request(app.server).post("/auth/register").send(body).expect(201);
     expect(JSON.stringify(res.body)).not.toContain("$2");
   });
 
-  it("rejects a duplicate email with 409", async () => {
+  it("REG-033: rejects a duplicate email with 409", async () => {
     await request(app.server).post("/auth/register").send(body).expect(201);
     const res = await request(app.server).post("/auth/register").send(body).expect(409);
     expect(res.body.code).toBe("EMAIL_TAKEN");
   });
 
-  it("returns per-field errors for a weak password", async () => {
+  it("REG-034: returns per-field errors for a weak password", async () => {
     const res = await request(app.server)
       .post("/auth/register")
       .send({ ...body, password: "weak" })

@@ -30,13 +30,13 @@ const profile: UserProfile = {
 };
 
 describe("RequireAuth", () => {
-  it("renders Loading… before the request settles", () => {
+  it("LOGIN-047: renders Loading… before the request settles", () => {
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>(() => {})));
     render(<RequireAuth>{() => <p>Secret</p>}</RequireAuth>);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("renders the child with the fetched profile", async () => {
+  it("LOGIN-048: renders the child with the fetched profile", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, profile));
     vi.stubGlobal("fetch", fetchMock);
     render(<RequireAuth>{(p) => <p>{p.name}</p>}</RequireAuth>);
@@ -44,7 +44,7 @@ describe("RequireAuth", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("calls push with a login path on a 401", async () => {
+  it("LOGIN-049: calls push with a login path on a 401", async () => {
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse(401, { code: "UNAUTHENTICATED", message: "Sign in required", fieldErrors: null }),
     );
@@ -57,7 +57,7 @@ describe("RequireAuth", () => {
     expect(push.mock.calls[0][0]).toMatch(/^\/login/);
   });
 
-  it("does not render the child after a 401", async () => {
+  it("LOGIN-050: does not render the child after a 401", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(401, { code: "UNAUTHENTICATED", message: "Sign in required", fieldErrors: null }),
     ));

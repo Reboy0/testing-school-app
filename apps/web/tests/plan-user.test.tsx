@@ -30,14 +30,14 @@ const work: Address = { id: "adr_work", label: "Work", line1: "2 Khreshchatyk", 
 const control = (name: string) => document.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
 
 describe("ProfileForm", () => {
-  it("PROF-03 C-USER-02: starts filled with the profile, showing a null phone as an empty field", () => {
+  it("PROF-008 C-USER-02: starts filled with the profile, showing a null phone as an empty field", () => {
     render(<ProfileForm profile={{ ...sam, phone: null }} />);
 
     expect(screen.getByLabelText("Name")).toHaveValue("Sam Carter");
     expect(screen.getByLabelText("Phone")).toHaveValue("");
   });
 
-  it("PROF-03 C-USER-03: saving after changing one field sends only that field", async () => {
+  it("PROF-009 C-USER-03: saving after changing one field sends only that field", async () => {
     const api = stubApi(() => jsonResponse(200, { ...sam, phone: "+380501234567" }));
     render(<ProfileForm profile={sam} />);
 
@@ -50,7 +50,7 @@ describe("ProfileForm", () => {
 });
 
 describe("AddressForm", () => {
-  it("PROF-05 C-USER-06: submitting posts the values typed, calls onCreated with the result and clears the form", async () => {
+  it("PROF-017 C-USER-06: submitting posts the values typed, calls onCreated with the result and clears the form", async () => {
     const created: Address = { ...work, id: "adr_new" };
     const api = stubApi(() => jsonResponse(201, created));
     const onCreated = vi.fn();
@@ -74,7 +74,7 @@ describe("AddressForm", () => {
 });
 
 describe("AddressList", () => {
-  it("PROF-06 C-USER-08: renders one row per address, with Default on exactly one", () => {
+  it("PROF-021 C-USER-08: renders one row per address, with Default on exactly one", () => {
     render(<AddressList addresses={[home, work]} onDeleted={vi.fn()} />);
 
     const rows = screen.getAllByRole("listitem");
@@ -85,7 +85,7 @@ describe("AddressList", () => {
     expect(within(rows[0]).getByText("Default")).toBeInTheDocument();
   });
 
-  it("PROF-05 C-USER-09: Delete sends DELETE for that address's id and then reports onDeleted(id)", async () => {
+  it("PROF-018 C-USER-09: Delete sends DELETE for that address's id and then reports onDeleted(id)", async () => {
     const api = stubApi(() => jsonResponse(204));
     const onDeleted = vi.fn();
     render(<AddressList addresses={[home, work]} onDeleted={onDeleted} />);
@@ -98,7 +98,7 @@ describe("AddressList", () => {
 });
 
 describe("ProfilePage", () => {
-  it("PROF-08 C-USER-10: shows the email and the profile form, and below them an Addresses section with its heading, the list and the add form", async () => {
+  it("PROF-025 C-USER-10: shows the email and the profile form, and below them an Addresses section with its heading, the list and the add form", async () => {
     stubApi(({ path }) => (path === "/users/me" ? jsonResponse(200, sam) : jsonResponse(200, [home])));
     render(<ProfilePage />);
 

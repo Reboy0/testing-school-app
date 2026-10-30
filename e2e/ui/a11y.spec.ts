@@ -21,7 +21,7 @@ async function seriousViolations(page: Page, path: string): Promise<string[]> {
     .flatMap((violation) => violation.nodes.map((node) => `${path}: [${violation.impact}] ${violation.id} — ${node.target.join(" ")}`));
 }
 
-test("XC-03 UI-A11Y-01: axe finds no serious or critical violations on any key page, /profile included", async ({ page }) => {
+test("XC-010 UI-A11Y-01: axe finds no serious or critical violations on any key page, /profile included", async ({ page }) => {
   const violations: string[] = [];
   for (const path of PUBLIC_PAGES) {
     await settled(page, path);
@@ -36,7 +36,7 @@ test("XC-03 UI-A11Y-01: axe finds no serious or critical violations on any key p
   expect(violations).toEqual([]);
 });
 
-test("XC-02 UI-A11Y-02: every input on every form has an accessible name equal to its visible label", async ({ page }) => {
+test("XC-009 UI-A11Y-02: every input on every form has an accessible name equal to its visible label", async ({ page }) => {
   const offenders: string[] = [];
   const check = async (path: string) => {
     const controls = await page.getByRole("main").locator("input, select, textarea").all();
@@ -91,7 +91,7 @@ async function tabTo(page: Page, matches: (element: { role: string; name: string
   throw new Error(`Could not reach ${description} with Tab`);
 }
 
-test("XC-04 UI-A11Y-03: sign in → catalogue → add to cart → cart → sign out works with the keyboard alone, with focus always visible", async ({ page, request }) => {
+test("XC-011 UI-A11Y-03: sign in → catalogue → add to cart → cart → sign out works with the keyboard alone, with focus always visible", async ({ page, request }) => {
   const account = await createAccount(request, "keyboard");
   await page.goto("/login");
 
@@ -123,7 +123,7 @@ test("XC-04 UI-A11Y-03: sign in → catalogue → add to cart → cart → sign 
   await expect(header(page).getByRole("link", { name: "Login" })).toBeVisible();
 });
 
-test("XC-01 UI-A11Y-04: a field the API rejects is aria-invalid and points at its message through aria-describedby", async ({ page }) => {
+test("XC-004 UI-A11Y-04: a field the API rejects is aria-invalid and points at its message through aria-describedby", async ({ page }) => {
   await page.goto("/register");
   await page.getByLabel("Email address").fill(uniqueEmail("a11yerr"));
   await page.getByLabel("Name").fill("Ada");

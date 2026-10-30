@@ -17,7 +17,7 @@ async function addFromCatalogue(page: Page, name: string) {
 
 const quantityOf = (page: Page, name: string) => cartRow(page, name).locator("span.min-w-4");
 
-test("CRT-01 E-CART-01: a guest's cart is still there after a reload and after closing and reopening the page", async ({ context, page }) => {
+test("CRT-003 E-CART-01: a guest's cart is still there after a reload and after closing and reopening the page", async ({ context, page }) => {
   await addFromCatalogue(page, "Desk lamp");
   await expect(cartLink(page)).toHaveText("Cart (1)");
 
@@ -31,7 +31,7 @@ test("CRT-01 E-CART-01: a guest's cart is still there after a reload and after c
   await expect(cartLink(reopened)).toHaveText("Cart (1)");
 });
 
-test("CRT-04 E-CART-02: adding the same product twice gives one line of 2, and the card says 2 are in the cart", async ({ page }) => {
+test("CRT-009 E-CART-02: adding the same product twice gives one line of 2, and the card says 2 are in the cart", async ({ page }) => {
   await addFromCatalogue(page, "Desk lamp");
   await card(page, "Desk lamp").getByRole("button", { name: "Add to cart" }).click();
   await expect(card(page, "Desk lamp").getByText("In your cart: 2")).toBeVisible();
@@ -41,7 +41,7 @@ test("CRT-04 E-CART-02: adding the same product twice gives one line of 2, and t
   await expect(quantityOf(page, "Desk lamp")).toHaveText("2");
 });
 
-test("CRT-05 E-CART-03: on /cart, increasing, decreasing and deleting a line keep the totals and the badge right after every step", async ({ page }) => {
+test("CRT-015 E-CART-03: on /cart, increasing, decreasing and deleting a line keep the totals and the badge right after every step", async ({ page }) => {
   await addFromCatalogue(page, "Desk lamp");
   await page.goto("/cart");
   const row = cartRow(page, "Desk lamp");
@@ -61,7 +61,7 @@ test("CRT-05 E-CART-03: on /cart, increasing, decreasing and deleting a line kee
   await expect(cartLink(page)).toHaveText("Cart (0)");
 });
 
-test("CRT-06 E-CART-04: a guest's cart is merged into an account that already has one: quantities add up and nothing is lost", async ({ page, playwright }) => {
+test("CRT-020 E-CART-04: a guest's cart is merged into an account that already has one: quantities add up and nothing is lost", async ({ page, playwright }) => {
   const accountApi = await playwright.request.newContext();
   const account = await createAccount(accountApi, "merge");
   const products = (await (await accountApi.get(`${API_URL}/products?q=desk%20lamp`)).json()).items;
@@ -88,7 +88,7 @@ test("CRT-06 E-CART-04: a guest's cart is merged into an account that already ha
   await expect(quantityOf(page, "iPhone dock")).toHaveText("1");
 });
 
-test("CRT-07 E-CART-05: iPhone dock (19.99, 25 % off) × 3 shows a total of 59.97, a discount of 14.99 and 44.98 to pay", async ({ page }) => {
+test("CRT-026 E-CART-05: iPhone dock (19.99, 25 % off) × 3 shows a total of 59.97, a discount of 14.99 and 44.98 to pay", async ({ page }) => {
   await addFromCatalogue(page, "iPhone dock");
   await page.goto("/cart");
   const row = cartRow(page, "iPhone dock");
@@ -102,7 +102,7 @@ test("CRT-07 E-CART-05: iPhone dock (19.99, 25 % off) × 3 shows a total of 59.9
   await expect(row).toContainText("$44.98");
 });
 
-test("CRT-11 E-CART-06: after signing out, the signed-in user's cart is no longer shown", async ({ page, request }) => {
+test("CRT-035 E-CART-06: after signing out, the signed-in user's cart is no longer shown", async ({ page, request }) => {
   const account = await createAccount(request, "cartout");
   await signIn(page, account);
   await addFromCatalogue(page, "Desk lamp");

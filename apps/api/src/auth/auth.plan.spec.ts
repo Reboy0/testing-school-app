@@ -57,7 +57,7 @@ describe("AuthService token lifetimes", () => {
     jest.useRealTimers();
   });
 
-  it("LOGIN-01 U-AUTH-08: the access token issued at sign-in expires exactly 15 minutes after it is issued", async () => {
+  it("LOGIN-001 U-AUTH-08: the access token issued at sign-in expires exactly 15 minutes after it is issued", async () => {
     const { service, jwt } = await serviceWithUser();
     pinClock();
 
@@ -68,7 +68,7 @@ describe("AuthService token lifetimes", () => {
     expect(payload.exp * 1000).toBe(NOW.getTime() + 15 * MINUTE);
   });
 
-  it("LOGIN-01 U-AUTH-09: the refresh token issued at sign-in is stored to expire exactly 30 days later", async () => {
+  it("LOGIN-002 U-AUTH-09: the refresh token issued at sign-in is stored to expire exactly 30 days later", async () => {
     const { service, prisma } = await serviceWithUser();
     pinClock();
 
@@ -78,7 +78,7 @@ describe("AuthService token lifetimes", () => {
     expect(expiresAt.getTime()).toBe(NOW.getTime() + 30 * DAY);
   });
 
-  it("PWD-01 U-AUTH-10: a password-reset token is stored to expire exactly 15 minutes after it is issued", async () => {
+  it("PWD-001 U-AUTH-10: a password-reset token is stored to expire exactly 15 minutes after it is issued", async () => {
     const { service, prisma } = await serviceWithUser();
     pinClock();
 
@@ -90,7 +90,7 @@ describe("AuthService token lifetimes", () => {
 });
 
 describe("password hashing", () => {
-  it("REG-05 U-AUTH-06: hashing the same password twice gives two different salted hashes, both of which verify", async () => {
+  it("REG-024 U-AUTH-06: hashing the same password twice gives two different salted hashes, both of which verify", async () => {
     const first = await hashPassword("Abcdefghi1");
     const second = await hashPassword("Abcdefghi1");
 

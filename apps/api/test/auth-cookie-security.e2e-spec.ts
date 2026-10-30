@@ -29,7 +29,7 @@ describe("session cookie security attributes", () => {
     return (res.get("set-cookie") ?? []) as unknown as string[];
   }
 
-  it("marks the cookies SameSite=None and Secure when the web app is on another site", async () => {
+  it("XC-028: marks the cookies SameSite=None and Secure when the web app is on another site", async () => {
     process.env.CROSS_SITE_COOKIES = "true";
 
     const cookies = await loginCookies();
@@ -41,7 +41,7 @@ describe("session cookie security attributes", () => {
     }
   });
 
-  it("marks the signed-out cart's cookie the same way, so the cart survives the trip", async () => {
+  it("XC-029: marks the signed-out cart's cookie the same way, so the cart survives the trip", async () => {
     process.env.CROSS_SITE_COOKIES = "true";
     const product = await app.prisma.product.create({
       data: {
@@ -68,7 +68,7 @@ describe("session cookie security attributes", () => {
     expect(cartCookie).toMatch(/;\s*Secure/i);
   });
 
-  it("keeps the cookies SameSite=Lax and insecure for same-site local development", async () => {
+  it("XC-030: keeps the cookies SameSite=Lax and insecure for same-site local development", async () => {
     const cookies = await loginCookies();
 
     expect(cookies).toHaveLength(2);
@@ -78,7 +78,7 @@ describe("session cookie security attributes", () => {
     }
   });
 
-  it("clears the cookies with the same attributes it set them with", async () => {
+  it("XC-031: clears the cookies with the same attributes it set them with", async () => {
     process.env.CROSS_SITE_COOKIES = "true";
     const cookies = await loginCookies();
 

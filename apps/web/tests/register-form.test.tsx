@@ -20,7 +20,7 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 describe("RegisterForm", () => {
-  it("labels all three inputs", () => {
+  it("REG-035: labels all three inputs", () => {
     render(
       <SessionProvider>
         <RegisterForm />
@@ -31,7 +31,7 @@ describe("RegisterForm", () => {
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
   });
 
-  it("registers and navigates home", async () => {
+  it("REG-036: registers and navigates home", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(201, { id: "usr_1" })));
     render(
       <SessionProvider>
@@ -45,7 +45,7 @@ describe("RegisterForm", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
   });
 
-  it("renders every password error the API reports", async () => {
+  it("REG-037: renders every password error the API reports", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(400, {
         code: "VALIDATION_FAILED",
@@ -66,7 +66,7 @@ describe("RegisterForm", () => {
     expect(screen.getByText("Must contain a number")).toBeInTheDocument();
   });
 
-  it("disables the button while the request is in flight", async () => {
+  it("REG-038: disables the button while the request is in flight", async () => {
     let release: (value: Response) => void = () => {};
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>((resolve) => { release = resolve; })));
     render(
