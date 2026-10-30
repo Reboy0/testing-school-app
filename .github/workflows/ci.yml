@@ -40,6 +40,16 @@ jobs:
       SMTP_HOST: localhost
       SMTP_PORT: "1025"
       APP_URL: http://localhost:3000
+      # Read by the "Report … to OpenCards" steps. OPENCARDS_TOKEN is a
+      # repository secret holding a CI token (role editor) issued in
+      # OpenCards — never put the token itself in this file. On a fork PR the
+      # secret is empty and the reporter just prints "not sent".
+      OPENCARDS_URL: https://yurii-org.opencards.dev
+      OPENCARDS_PRODUCT: school-app
+      OPENCARDS_TOKEN: ${{ secrets.OPENCARDS_TOKEN }}
+      JEST_JUNIT_CLASSNAME: "{classname}"
+      JEST_JUNIT_TITLE: "{title}"
+      JEST_JUNIT_ADD_FILE_ATTRIBUTE: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -105,6 +115,7 @@ jobs:
       # time once the servers are already up, or races them and fails
       # flakily when they're a little slow to start.
       - name: Wait for the API and the web app to respond
+        id: servers
         run: |
           for i in $(seq 1 60); do
             curl -sf http://localhost:4000/health >/dev/null && break
@@ -120,15 +131,74 @@ jobs:
           curl -sf http://localhost:3000 >/dev/null \
             || { echo "::error::Web app did not start"; cat /tmp/web.log; exit 1; }
 
-      # pnpm test runs @school/shared's unit suite, @school/api's unit
-      # suite, @school/api's integration suite, @school/web's component
-      # suite, and @school/e2e's browser suite, in that order (see the root
-      # package.json "test" script). The integration suite's own
-      # globalSetup runs `prisma migrate deploy` against TEST_DATABASE_URL
-      # before its first test, so no separate migration step is needed for
-      # it here. The browser suite instead drives the API and web servers
-      # started above, over the `school` database seeded above.
-      - run: pnpm test
+      # These five steps are what `pnpm test` runs locally (see the root
+      # package.json "test" script), split up so each suite writes its own
+      # JUnit report and posts it to OpenCards under its own suite name.
+      # Unlike `pnpm test`'s `&&` chain, a failing suite does not stop the
+      # ones after it — the job still fails, but every suite gets reported.
+      # They only run once the servers responded (steps.servers), so a broken
+      # setup step still stops the job as before.
+      #
+      # The integration suite's own globalSetup runs `prisma migrate deploy`
+      # against TEST_DATABASE_URL before its first test, so no separate
+      # migration step is needed for it here. The browser suite instead
+      # drives the API and web servers started above, over the `school`
+      # database seeded above.
+      #
+      # jest-junit's default test name is "<describe> <test>"; OpenCards reads
+      # a case id from the start of the test's own title, so name it {title}.
+      - name: Unit tests (@school/shared)
+        if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
+        env:
+          JEST_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/shared-unit.xml
+        run: pnpm --filter @school/shared exec jest --ci --reporters=default --reporters=jest-junit
+      - name: Report shared unit tests to OpenCards
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL "$OPENCARDS_URL/api/ci/reporter.mjs" -o opencards-report.mjs || exit 0
+          node opencards-report.mjs reports/shared-unit.xml shared-unit || exit 0
+
+      - name: Unit tests (@school/api)
+        if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
+        env:
+          JEST_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/api-unit.xml
+        run: pnpm --filter @school/api exec jest --ci --reporters=default --reporters=jest-junit
+      - name: Report API unit tests to OpenCards
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL "$OPENCARDS_URL/api/ci/reporter.mjs" -o opencards-report.mjs || exit 0
+          node opencards-report.mjs reports/api-unit.xml api-unit || exit 0
+
+      - name: Integration tests (@school/api)
+        if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
+        env:
+          JEST_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/api-integration.xml
+        run: pnpm --filter @school/api exec jest --config test/jest-e2e.json --runInBand --ci --reporters=default --reporters=jest-junit
+      - name: Report API integration tests to OpenCards
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL "$OPENCARDS_URL/api/ci/reporter.mjs" -o opencards-report.mjs || exit 0
+          node opencards-report.mjs reports/api-integration.xml api-integration || exit 0
+
+      - name: Component tests (@school/web)
+        if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
+        run: pnpm --filter @school/web exec vitest run --reporter=default --reporter=junit "--outputFile.junit=${{ github.workspace }}/reports/web-component.xml"
+      - name: Report web component tests to OpenCards
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL "$OPENCARDS_URL/api/ci/reporter.mjs" -o opencards-report.mjs || exit 0
+          node opencards-report.mjs reports/web-component.xml web-component || exit 0
+
+      - name: Browser tests (@school/e2e)
+        if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/e2e.xml
+        run: pnpm --filter @school/e2e exec playwright test
+      - name: Report browser tests to OpenCards
+        if: ${{ !cancelled() }}
+        run: |
+          curl -fsSL "$OPENCARDS_URL/api/ci/reporter.mjs" -o opencards-report.mjs || exit 0
+          node opencards-report.mjs reports/e2e.xml e2e || exit 0
 
   boot:
     runs-on: ubuntu-latest
