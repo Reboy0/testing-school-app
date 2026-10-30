@@ -6,8 +6,11 @@
     "test": "playwright test"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
     "@playwright/test": "1.56.0",
     "@types/node": "^22",
+    "@types/pg": "8.11.10",
+    "pg": "8.13.1",
     "typescript": "^5.9.3"
   }
 }

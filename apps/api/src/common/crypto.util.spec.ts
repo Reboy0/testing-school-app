@@ -10,7 +10,7 @@ describe("password hashing", () => {
     expect(await verifyPassword("Password123!", await hashPassword("Password123!"))).toBe(true);
   });
 
-  it("rejects an incorrect password", async () => {
+  it("REG-05 U-AUTH-07: rejects an incorrect password", async () => {
     expect(await verifyPassword("WrongPassword1", await hashPassword("Password123!"))).toBe(false);
   });
 });

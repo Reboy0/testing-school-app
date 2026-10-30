@@ -21,19 +21,19 @@ describe("totalPages", () => {
 describe("pageSlice", () => {
   const items = ["a", "b", "c", "d", "e"];
 
-  it("returns the first page", () => {
+  it("SORT-04 U-CAT-06: returns the first page", () => {
     expect(pageSlice(items, 1, 2)).toEqual(["a", "b"]);
   });
 
-  it("returns a later page", () => {
+  it("SORT-04 U-CAT-06: returns a later page", () => {
     expect(pageSlice(items, 2, 2)).toEqual(["c", "d"]);
   });
 
-  it("returns the part-full last page", () => {
+  it("SORT-04 U-CAT-06: returns the part-full last page", () => {
     expect(pageSlice(items, 3, 2)).toEqual(["e"]);
   });
 
-  it("returns nothing past the end", () => {
+  it("SORT-04 U-CAT-06: returns nothing past the end", () => {
     expect(pageSlice(items, 9, 2)).toEqual([]);
   });
 });

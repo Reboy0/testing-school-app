@@ -19,7 +19,7 @@ describe("AllExceptionsFilter", () => {
     filter = new AllExceptionsFilter();
   });
 
-  it("maps an AppError to the error contract, preserving fieldErrors", () => {
+  it("XC-05 U-ERR-01: maps an AppError to the error contract, preserving fieldErrors", () => {
     filter.catch(
       new AppError("VALIDATION_FAILED", "Check the form", 400, { email: ["Enter a valid email address"] }),
       hostWith(json, status),
@@ -32,13 +32,13 @@ describe("AllExceptionsFilter", () => {
     });
   });
 
-  it("maps a plain HttpException with fieldErrors null", () => {
+  it("XC-05 U-ERR-01: maps a plain HttpException with fieldErrors null", () => {
     filter.catch(new HttpException("Nope", 403), hostWith(json, status));
     expect(status).toHaveBeenCalledWith(403);
     expect(json).toHaveBeenCalledWith({ code: "HTTP_ERROR", message: "Nope", fieldErrors: null });
   });
 
-  it("maps an unknown throw to a 500 without leaking the message", () => {
+  it("XC-05 U-ERR-01: maps an unknown throw to a 500 without leaking the message", () => {
     filter.catch(new Error("connection string is postgres://user:hunter2@db"), hostWith(json, status));
     expect(status).toHaveBeenCalledWith(500);
     expect(json).toHaveBeenCalledWith({

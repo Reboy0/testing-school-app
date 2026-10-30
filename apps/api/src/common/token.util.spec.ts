@@ -1,15 +1,15 @@
 import { generateToken, hashToken, computeExpiry } from "./token.util";
 
 describe("token utilities", () => {
-  it("generates a 64-character hex token", () => {
+  it("LOGIN-04 U-AUTH-11: generates a 64-character hex token", () => {
     expect(generateToken()).toMatch(/^[0-9a-f]{64}$/);
   });
 
-  it("generates a different token each call", () => {
+  it("LOGIN-04 U-AUTH-11: generates a different token each call", () => {
     expect(generateToken()).not.toEqual(generateToken());
   });
 
-  it("hashes deterministically", () => {
+  it("LOGIN-04 U-AUTH-11: hashes deterministically", () => {
     expect(hashToken("abc")).toEqual(hashToken("abc"));
     expect(hashToken("abc")).not.toEqual(hashToken("abd"));
   });
