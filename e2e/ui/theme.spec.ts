@@ -79,7 +79,7 @@ test("TH-03 UI-THEME-05: a stored dark theme is applied before the first paint o
 });
 
 for (const theme of ["light", "dark"] as const) {
-  test(`TH-04 UI-THEME-06: key pages pass axe's colour-contrast check in the ${theme} theme`, async ({ page }, testInfo) => {
+  test(`TH-04 UI-THEME-06: key pages pass axe's colour-contrast check in the ${theme} theme`, async ({ page }) => {
     await page.addInitScript((value) => window.localStorage.setItem("theme", value), theme);
     const violations: string[] = [];
 
@@ -87,10 +87,6 @@ for (const theme of ["light", "dark"] as const) {
       await page.goto(path);
       await expect(page.getByRole("main")).toBeVisible();
       await page.waitForLoadState("networkidle");
-      await testInfo.attach(`${theme}${path.replace(/\//g, "_") || "_home"}.png`, {
-        body: await page.screenshot({ fullPage: true }),
-        contentType: "image/png",
-      });
       const result = await new AxeBuilder({ page }).withRules(["color-contrast"]).analyze();
       for (const violation of result.violations) {
         for (const node of violation.nodes) violations.push(`${path}: ${node.target.join(" ")} — ${node.failureSummary?.split("\n")[1]?.trim()}`);

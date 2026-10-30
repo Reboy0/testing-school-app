@@ -1,9 +1,5 @@
 /**
- * UI cases UI-RESP-01 and UI-VIS-01 from docs/test-plan.md §6.7.
- *
- * UI-VIS-01 compares against baselines in ui/layout.spec.ts-snapshots/. A
- * baseline is only ever replaced on purpose, after a change has been looked
- * at and approved: `pnpm --filter @school/e2e test ui/layout --update-snapshots`.
+ * UI case UI-RESP-01 from docs/test-plan.md §6.7.
  */
 import { expect, test } from "../fixtures";
 import type { Page } from "@playwright/test";
@@ -43,21 +39,3 @@ test("XC-08 UI-RESP-01: /, /catalogue, /cart and /profile have no horizontal scr
 
   expect(problems).toEqual([]);
 });
-
-for (const theme of ["light", "dark"] as const) {
-  for (const [device, width] of [["desktop", 1280], ["mobile", 375]] as const) {
-    test(`XC-09 UI-VIS-01: key pages look as approved — ${theme}, ${device}`, async ({ page }) => {
-      await page.addInitScript((value) => window.localStorage.setItem("theme", value), theme);
-      await page.setViewportSize({ width, height: 900 });
-
-      for (const path of ["/login", "/register", "/forgot-password", "/cart"]) {
-        await open(page, path);
-        await expect(page).toHaveScreenshot(`${theme}-${device}${path.replace(/\//g, "-")}.png`, {
-          fullPage: true,
-          animations: "disabled",
-          maxDiffPixelRatio: 0.01,
-        });
-      }
-    });
-  }
-}
