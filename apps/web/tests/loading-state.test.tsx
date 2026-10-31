@@ -12,13 +12,13 @@ afterEach(() => {
 });
 
 describe("LoadingState", () => {
-  it("says it is loading straight away", () => {
+  it("CATL-035: says it is loading straight away", () => {
     render(<LoadingState />);
 
     expect(screen.getByRole("status")).toHaveTextContent(/loading/i);
   });
 
-  it("does not explain the wait before the escalation delay", () => {
+  it("CATL-036: does not explain the wait before the escalation delay", () => {
     render(<LoadingState escalateAfterMs={6000} />);
 
     act(() => {
@@ -31,7 +31,7 @@ describe("LoadingState", () => {
   // A cold start on a sleeping free-tier service takes up to a minute. An
   // unexplained minute of "Loading…" reads as a broken page, so the message
   // escalates rather than repeating itself.
-  it("explains the wait once the delay has passed", () => {
+  it("CATL-037: explains the wait once the delay has passed", () => {
     render(<LoadingState escalateAfterMs={6000} />);
 
     act(() => {
@@ -42,7 +42,7 @@ describe("LoadingState", () => {
     expect(screen.getByRole("status")).toHaveTextContent(/up to a minute/i);
   });
 
-  it("announces itself politely rather than interrupting a screen reader", () => {
+  it("CATL-038: announces itself politely rather than interrupting a screen reader", () => {
     render(<LoadingState />);
 
     expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
@@ -53,7 +53,7 @@ describe("LoadingState", () => {
   // surviving timer leaves no observable trace to assert on. The cleanup still
   // matters — this component is mounted and unmounted on every navigation —
   // and this is the only way to catch its absence.
-  it("clears its escalation timer on unmount", () => {
+  it("CATL-039: clears its escalation timer on unmount", () => {
     const clearTimeoutSpy = vi.spyOn(globalThis, "clearTimeout");
 
     const { unmount } = render(<LoadingState escalateAfterMs={6000} />);

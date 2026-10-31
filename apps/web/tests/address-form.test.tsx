@@ -31,7 +31,7 @@ async function fillForm() {
 }
 
 describe("AddressForm", () => {
-  it("renders all five inputs", () => {
+  it("PROF-036: renders all five inputs", () => {
     render(<AddressForm onCreated={() => {}} />);
     expect(screen.getByPlaceholderText("Home")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("12 Elm Street")).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe("AddressForm", () => {
     expect(screen.getByPlaceholderText("US")).toBeInTheDocument();
   });
 
-  it("POSTs /users/me/addresses with the filled-in values", async () => {
+  it("PROF-037: POSTs /users/me/addresses with the filled-in values", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(201, created));
     vi.stubGlobal("fetch", fetchMock);
     render(<AddressForm onCreated={() => {}} />);
@@ -59,7 +59,7 @@ describe("AddressForm", () => {
     });
   });
 
-  it("calls onCreated with the created address and clears the form", async () => {
+  it("PROF-038: calls onCreated with the created address and clears the form", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(201, created)));
     const onCreated = vi.fn();
     render(<AddressForm onCreated={onCreated} />);
@@ -73,7 +73,7 @@ describe("AddressForm", () => {
     expect(screen.getByPlaceholderText("US")).toHaveValue("");
   });
 
-  it("renders a fieldErrors.country response beside the country input", async () => {
+  it("PROF-039: renders a fieldErrors.country response beside the country input", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(422, {
         code: "VALIDATION_FAILED",
@@ -88,7 +88,7 @@ describe("AddressForm", () => {
     expect(screen.getByPlaceholderText("US")).toHaveAttribute("aria-describedby", "country-error");
   });
 
-  it("disables the button while the request is in flight", async () => {
+  it("PROF-040: disables the button while the request is in flight", async () => {
     let release: (value: Response) => void = () => {};
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>((resolve) => { release = resolve; })));
     render(<AddressForm onCreated={() => {}} />);

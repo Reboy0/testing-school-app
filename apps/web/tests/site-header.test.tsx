@@ -35,40 +35,40 @@ beforeEach(() => {
 });
 
 describe("SiteHeader", () => {
-  it("signed out: shows Login and Register links", () => {
+  it("LOGIN-057: signed out: shows Login and Register links", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Login" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Register" })).toBeInTheDocument();
   });
 
-  it("signed out: has no Sign out button and no Profile link", () => {
+  it("LOGIN-058: signed out: has no Sign out button and no Profile link", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Profile" })).not.toBeInTheDocument();
   });
 
-  it("signed in: shows the user's name", () => {
+  it("LOGIN-059: signed in: shows the user's name", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByText("Sam Sample")).toBeInTheDocument();
   });
 
-  it("signed in: the user's name links to the profile", () => {
+  it("LOGIN-060: signed in: the user's name links to the profile", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Sam Sample" })).toHaveAttribute("href", "/profile");
   });
 
-  it("signed in: offers no separate Profile or Addresses link", () => {
+  it("LOGIN-061: signed in: offers no separate Profile or Addresses link", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.queryByRole("link", { name: "Profile" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Addresses" })).not.toBeInTheDocument();
   });
 
-  it("signed in: still offers the catalogue, the cart and the reports", () => {
+  it("LOGIN-062: signed in: still offers the catalogue, the cart and the reports", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Catalogue" })).toBeInTheDocument();
@@ -76,13 +76,13 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("link", { name: "Reports" })).toHaveAttribute("href", "/reports/uap");
   });
 
-  it("signed in: shows a Sign out button", () => {
+  it("LOGIN-063: signed in: shows a Sign out button", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
   });
 
-  it("signed in: has no Login or Register link", () => {
+  it("LOGIN-064: signed in: has no Login or Register link", () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.queryByRole("link", { name: "Login" })).not.toBeInTheDocument();
@@ -92,13 +92,13 @@ describe("SiteHeader", () => {
   // On a sleeping free-tier API the session request can take up to a minute.
   // Hiding the nav outright left the header looking finished but empty, and
   // then jumping when the real links arrived.
-  it("loading: shows placeholders in place of the nav", () => {
+  it("LOGIN-065: loading: shows placeholders in place of the nav", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: true, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByTestId("nav-skeleton")).toBeInTheDocument();
   });
 
-  it("loading: commits to neither the signed-in nor the signed-out nav", () => {
+  it("LOGIN-066: loading: commits to neither the signed-in nor the signed-out nav", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: true, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.queryByRole("link", { name: "Login" })).not.toBeInTheDocument();
@@ -107,13 +107,13 @@ describe("SiteHeader", () => {
     expect(screen.queryByRole("button", { name: "Sign out" })).not.toBeInTheDocument();
   });
 
-  it("loading: hides the placeholders from assistive technology", () => {
+  it("LOGIN-067: loading: hides the placeholders from assistive technology", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: true, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     expect(screen.getByTestId("nav-skeleton")).toHaveAttribute("aria-hidden", "true");
   });
 
-  it("offers the catalogue and the cart whether or not anyone is signed in", () => {
+  it("LOGIN-068: offers the catalogue and the cart whether or not anyone is signed in", () => {
     useSessionMock.mockReturnValue({ profile: null, loading: false, refresh: vi.fn(), signOut });
     const { unmount } = render(<SiteHeader />);
     expect(screen.getByRole("link", { name: "Catalogue" })).toBeInTheDocument();
@@ -126,7 +126,7 @@ describe("SiteHeader", () => {
     expect(screen.getByRole("link", { name: "Cart (0)" })).toBeInTheDocument();
   });
 
-  it("clicking Sign out calls the session's signOut", async () => {
+  it("LOGIN-069: clicking Sign out calls the session's signOut", async () => {
     useSessionMock.mockReturnValue({ profile, loading: false, refresh: vi.fn(), signOut });
     render(<SiteHeader />);
     await userEvent.click(screen.getByRole("button", { name: "Sign out" }));

@@ -23,7 +23,7 @@ function jsonResponse(status: number, body: unknown) {
 }
 
 describe("LoginForm", () => {
-  it("labels both inputs", () => {
+  it("LOGIN-043: labels both inputs", () => {
     render(
       <SessionProvider>
         <LoginForm />
@@ -33,7 +33,7 @@ describe("LoginForm", () => {
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
   });
 
-  it("signs in and navigates home", async () => {
+  it("LOGIN-044: signs in and navigates home", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(200, {})));
     render(
       <SessionProvider>
@@ -46,7 +46,7 @@ describe("LoginForm", () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
   });
 
-  it("shows the API's message when the credentials are rejected", async () => {
+  it("LOGIN-045: shows the API's message when the credentials are rejected", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(401, { code: "INVALID_CREDENTIALS", message: "Email or password is incorrect", fieldErrors: null }),
     ));
@@ -61,7 +61,7 @@ describe("LoginForm", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Email or password is incorrect");
   });
 
-  it("disables the button while the request is in flight", async () => {
+  it("LOGIN-046: disables the button while the request is in flight", async () => {
     let release: (value: Response) => void = () => {};
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>((resolve) => { release = resolve; })));
     render(

@@ -18,7 +18,7 @@ const addresses: Address[] = [
 ];
 
 describe("AddressList", () => {
-  it("renders one row per address showing its label and city", () => {
+  it("PROF-041: renders one row per address showing its label and city", () => {
     render(<AddressList addresses={addresses} onDeleted={() => {}} />);
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(2);
@@ -28,7 +28,7 @@ describe("AddressList", () => {
     expect(within(items[1]).getByText("Shelbyville")).toBeInTheDocument();
   });
 
-  it("marks exactly the default one with the text Default", () => {
+  it("PROF-042: marks exactly the default one with the text Default", () => {
     render(<AddressList addresses={addresses} onDeleted={() => {}} />);
     const items = screen.getAllByRole("listitem");
     expect(within(items[0]).getByText("Default")).toBeInTheDocument();
@@ -36,7 +36,7 @@ describe("AddressList", () => {
     expect(screen.getAllByText("Default")).toHaveLength(1);
   });
 
-  it("DELETEs /users/me/addresses/:id and then calls onDeleted with that id", async () => {
+  it("PROF-043: DELETEs /users/me/addresses/:id and then calls onDeleted with that id", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(204, undefined));
     vi.stubGlobal("fetch", fetchMock);
     const onDeleted = vi.fn();

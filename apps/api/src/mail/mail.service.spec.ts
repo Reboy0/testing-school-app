@@ -15,13 +15,13 @@ describe("MailService without a configured SMTP server", () => {
     else process.env.APP_URL = originalAppUrl;
   });
 
-  it("delivers nowhere instead of rejecting, so forgot-password still answers 202", async () => {
+  it("PWD-019: delivers nowhere instead of rejecting, so forgot-password still answers 202", async () => {
     const service = new MailService();
 
     await expect(service.sendPasswordReset("sam@example.com", "a-token")).resolves.toBeUndefined();
   });
 
-  it("logs the reset link so it stays recoverable from the service logs", async () => {
+  it("PWD-020: logs the reset link so it stays recoverable from the service logs", async () => {
     process.env.APP_URL = "https://school-web.onrender.com";
     const service = new MailService();
     const warn = jest

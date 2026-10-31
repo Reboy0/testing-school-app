@@ -16,7 +16,7 @@ describe("error contract", () => {
   beforeAll(async () => { app = await createTestApp(); });
   afterAll(() => app.close());
 
-  it("returns the documented error envelope for a malformed JSON body", async () => {
+  it("XC-032: returns the documented error envelope for a malformed JSON body", async () => {
     const res = await request(app.server)
       .post("/auth/login")
       .set("Content-Type", "application/json")

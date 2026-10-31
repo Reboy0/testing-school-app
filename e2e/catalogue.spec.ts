@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 // catalogue shows, the price the cart shows and the total are all $34.50.
 const PRODUCT = "Desk lamp";
 
-test("browse the catalogue and put something in the cart", async ({ page }) => {
+test("CATL-046: browse the catalogue and put something in the cart", async ({ page }) => {
   await page.goto("/catalogue");
   await expect(page.getByRole("heading", { name: "Catalogue" })).toBeVisible();
 

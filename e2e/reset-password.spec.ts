@@ -27,7 +27,7 @@ async function signIn(page: Page, password: string): Promise<void> {
   await expect(page).toHaveURL("/");
 }
 
-test("reset the seeded student's password by email link", async ({ page }) => {
+test("PWD-034: reset the seeded student's password by email link", async ({ page }) => {
   await clearMailbox();
   await requestReset(page);
 

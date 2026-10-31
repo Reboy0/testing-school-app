@@ -22,13 +22,13 @@ const profile: UserProfile = {
 };
 
 describe("ProfileForm", () => {
-  it("labels both inputs", () => {
+  it("PROF-044: labels both inputs", () => {
     render(<ProfileForm profile={profile} />);
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByLabelText("Phone")).toBeInTheDocument();
   });
 
-  it("pre-fills the inputs from the profile, rendering a null phone as an empty string", () => {
+  it("PROF-045: pre-fills the inputs from the profile, rendering a null phone as an empty string", () => {
     const { unmount } = render(<ProfileForm profile={profile} />);
     expect(screen.getByLabelText("Name")).toHaveValue("Sam Sample");
     expect(screen.getByLabelText("Phone")).toHaveValue("555-0100");
@@ -38,7 +38,7 @@ describe("ProfileForm", () => {
     expect(screen.getByLabelText("Phone")).toHaveValue("");
   });
 
-  it("PATCHes /users/me with only the changed fields", async () => {
+  it("PROF-046: PATCHes /users/me with only the changed fields", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, {}));
     vi.stubGlobal("fetch", fetchMock);
     render(<ProfileForm profile={profile} />);
@@ -57,7 +57,7 @@ describe("ProfileForm", () => {
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({});
   });
 
-  it("renders a fieldErrors.phone response beside the phone input", async () => {
+  it("PROF-047: renders a fieldErrors.phone response beside the phone input", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(
       jsonResponse(422, {
         code: "VALIDATION_FAILED",

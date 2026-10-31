@@ -56,7 +56,7 @@ function productRequests(fetchMock: ReturnType<typeof stubFetch>): string[] {
 }
 
 describe("Catalogue", () => {
-  it("shows a card for every product that came back", async () => {
+  it("CATL-027: shows a card for every product that came back", async () => {
     stubFetch({
       items: [product(), product({ id: "prd_pen", name: "Fountain pen", priceCents: 4900, effectivePriceCents: 4900 })],
       total: 2,
@@ -70,7 +70,7 @@ describe("Catalogue", () => {
     expect(screen.getByText("$34.50")).toBeInTheDocument();
   });
 
-  it("says so when nothing matched", async () => {
+  it("CATL-028: says so when nothing matched", async () => {
     stubFetch({ items: [], total: 0, totalPages: 0 });
 
     render(<Catalogue onAddToCart={vi.fn()} />);
@@ -78,7 +78,7 @@ describe("Catalogue", () => {
     expect(await screen.findByText("No products found")).toBeInTheDocument();
   });
 
-  it("asks for the next page", async () => {
+  it("CATL-029: asks for the next page", async () => {
     const fetchMock = stubFetch({ items: [product()], total: 20, totalPages: 2 });
     render(<Catalogue onAddToCart={vi.fn()} />);
     await screen.findByText("Desk lamp");
@@ -88,7 +88,7 @@ describe("Catalogue", () => {
     await waitFor(() => expect(productRequests(fetchMock).at(-1)).toContain("page=2"));
   });
 
-  it("puts the chosen category in the request", async () => {
+  it("CATL-030: puts the chosen category in the request", async () => {
     const fetchMock = stubFetch({ items: [product()], total: 1, totalPages: 1 });
     render(<Catalogue onAddToCart={vi.fn()} />);
     await screen.findByText("Desk lamp");
@@ -98,7 +98,7 @@ describe("Catalogue", () => {
     await waitFor(() => expect(productRequests(fetchMock).at(-1)).toContain("category=paper"));
   });
 
-  it("adds a product to the cart", async () => {
+  it("CATL-031: adds a product to the cart", async () => {
     stubFetch({ items: [product()], total: 1, totalPages: 1 });
     const onAddToCart = vi.fn();
     render(<Catalogue onAddToCart={onAddToCart} />);
@@ -109,7 +109,7 @@ describe("Catalogue", () => {
     expect(onAddToCart).toHaveBeenCalledWith("prd_lamp");
   });
 
-  it("says the add is under way while it is, and will not send it twice", async () => {
+  it("CATL-032: says the add is under way while it is, and will not send it twice", async () => {
     stubFetch({ items: [product()], total: 1, totalPages: 1 });
     let release: () => void = () => {};
     const onAddToCart = vi.fn(() => new Promise<void>((resolve) => {
@@ -129,14 +129,14 @@ describe("Catalogue", () => {
     expect(await screen.findByRole("button", { name: "Add to cart" })).toBeEnabled();
   });
 
-  it("shows on the product how many of it the cart holds", async () => {
+  it("CATL-033: shows on the product how many of it the cart holds", async () => {
     stubFetch({ items: [product()], total: 1, totalPages: 1 });
     render(<Catalogue onAddToCart={vi.fn()} inCartQuantities={{ prd_lamp: 2 }} />);
 
     expect(await screen.findByText("In your cart: 2")).toBeInTheDocument();
   });
 
-  it("says nothing about the cart for a product that is not in it", async () => {
+  it("CATL-034: says nothing about the cart for a product that is not in it", async () => {
     stubFetch({ items: [product()], total: 1, totalPages: 1 });
     render(<Catalogue onAddToCart={vi.fn()} inCartQuantities={{}} />);
     await screen.findByText("Desk lamp");

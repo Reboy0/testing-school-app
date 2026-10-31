@@ -12,18 +12,18 @@ describe("profile", () => {
     await createUser(app.prisma, { id: "usr_dana", email: "dana@example.com", password: "Password123!" });
   });
 
-  it("returns the signed-in user's profile without the hash", async () => {
+  it("PROF-032: returns the signed-in user's profile without the hash", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     const res = await request(app.server).get("/users/me").set("Cookie", cookies).expect(200);
     expect(res.body.email).toBe("sam@example.com");
     expect(res.body.passwordHash).toBeUndefined();
   });
 
-  it("refuses an unauthenticated request", async () => {
+  it("PROF-033: refuses an unauthenticated request", async () => {
     await request(app.server).get("/users/me").expect(401);
   });
 
-  it("updates only the supplied fields", async () => {
+  it("PROF-034: updates only the supplied fields", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     await request(app.server).patch("/users/me").set("Cookie", cookies).send({ phone: "+41 44 000" }).expect(200);
     const res = await request(app.server).get("/users/me").set("Cookie", cookies).expect(200);
@@ -31,7 +31,7 @@ describe("profile", () => {
     expect(res.body.name).toBe("Test User");
   });
 
-  it("returns your own profile by id", async () => {
+  it("PROF-035: returns your own profile by id", async () => {
     const { cookies } = await loginAs(app, "sam@example.com", "Password123!");
     await request(app.server).get("/users/usr_sam").set("Cookie", cookies).expect(200);
   });

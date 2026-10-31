@@ -51,23 +51,23 @@ beforeEach(() => {
 });
 
 describe("ProfilePage", () => {
-  it("shows the signed-in user's profile form", async () => {
+  it("PROF-048: shows the signed-in user's profile form", async () => {
     render(<ProfilePage />);
     expect(await screen.findByDisplayValue("Sam Sample")).toBeInTheDocument();
     expect(screen.getByText("student@example.com")).toBeInTheDocument();
   });
 
-  it("shows the saved addresses on the same page", async () => {
+  it("PROF-049: shows the saved addresses on the same page", async () => {
     render(<ProfilePage />);
     expect(await screen.findByText("Springfield")).toBeInTheDocument();
   });
 
-  it("offers the new-address form on the same page", async () => {
+  it("PROF-050: offers the new-address form on the same page", async () => {
     render(<ProfilePage />);
     expect(await screen.findByRole("button", { name: "Save address" })).toBeInTheDocument();
   });
 
-  it("separates the addresses with their own section heading", async () => {
+  it("PROF-051: separates the addresses with their own section heading", async () => {
     render(<ProfilePage />);
     expect(await screen.findByRole("heading", { name: "Addresses" })).toBeInTheDocument();
   });

@@ -38,7 +38,7 @@ function Probe() {
 }
 
 describe("SessionProvider / useSession", () => {
-  it("exposes loading: true before the request settles", () => {
+  it("LOGIN-051: exposes loading: true before the request settles", () => {
     vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>(() => {})));
     render(
       <SessionProvider>
@@ -49,7 +49,7 @@ describe("SessionProvider / useSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("exposes the fetched profile once it resolves", async () => {
+  it("LOGIN-052: exposes the fetched profile once it resolves", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse(200, profile)));
     render(
       <SessionProvider>
@@ -61,7 +61,7 @@ describe("SessionProvider / useSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("a 401 leaves profile null and loading false, without surfacing an error", async () => {
+  it("LOGIN-053: a 401 leaves profile null and loading false, without surfacing an error", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -78,7 +78,7 @@ describe("SessionProvider / useSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("a 500 also leaves profile null and does not throw", async () => {
+  it("LOGIN-054: a 500 also leaves profile null and does not throw", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -95,7 +95,7 @@ describe("SessionProvider / useSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("signOut() posts to /auth/logout and then re-reads /users/me", async () => {
+  it("LOGIN-055: signOut() posts to /auth/logout and then re-reads /users/me", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, profile));
     vi.stubGlobal("fetch", fetchMock);
     render(
@@ -117,7 +117,7 @@ describe("SessionProvider / useSession", () => {
     vi.unstubAllGlobals();
   });
 
-  it("requests GET /users/me exactly once on mount", async () => {
+  it("LOGIN-056: requests GET /users/me exactly once on mount", async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, profile));
     vi.stubGlobal("fetch", fetchMock);
     render(

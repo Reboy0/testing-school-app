@@ -12,7 +12,7 @@ const categories: Category[] = [
 const value = { q: "", category: "", minPrice: "", maxPrice: "", sort: "name_asc" as const };
 
 describe("CatalogueFilters", () => {
-  it("offers every category it was given, plus all of them", () => {
+  it("SEARCH-027: offers every category it was given, plus all of them", () => {
     render(<CatalogueFilters categories={categories} value={value} onChange={vi.fn()} />);
 
     const select = screen.getByLabelText("Category");
@@ -22,7 +22,7 @@ describe("CatalogueFilters", () => {
     expect(screen.getByRole("option", { name: "All categories" })).toBeInTheDocument();
   });
 
-  it("reports what was typed into the search box", async () => {
+  it("SEARCH-028: reports what was typed into the search box", async () => {
     const onChange = vi.fn();
     render(<CatalogueFilters categories={categories} value={value} onChange={onChange} />);
 
@@ -31,7 +31,7 @@ describe("CatalogueFilters", () => {
     expect(onChange).toHaveBeenCalledWith({ ...value, q: "l" });
   });
 
-  it("reports a category choice", async () => {
+  it("SEARCH-029: reports a category choice", async () => {
     const onChange = vi.fn();
     render(<CatalogueFilters categories={categories} value={value} onChange={onChange} />);
 
@@ -40,7 +40,7 @@ describe("CatalogueFilters", () => {
     expect(onChange).toHaveBeenCalledWith({ ...value, category: "paper" });
   });
 
-  it("reports a new sort order", async () => {
+  it("SEARCH-030: reports a new sort order", async () => {
     const onChange = vi.fn();
     render(<CatalogueFilters categories={categories} value={value} onChange={onChange} />);
 

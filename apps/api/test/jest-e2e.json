@@ -17,5 +17,8 @@
       }
     ]
   },
-  "globalSetup": "<rootDir>/test/global-setup.ts"
+  "globalSetup": "<rootDir>/test/global-setup.ts",
+  "setupFilesAfterEnv": [
+    "<rootDir>/test/isolation.ts"
+  ]
 }

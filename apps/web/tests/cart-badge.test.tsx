@@ -21,21 +21,21 @@ function cart(itemCount: number): Cart {
 }
 
 describe("CartBadge", () => {
-  it("shows how many items are in the cart", () => {
+  it("CRT-061: shows how many items are in the cart", () => {
     useCartMock.mockReturnValue({ cart: cart(3), loading: false });
     render(<CartBadge />);
 
     expect(screen.getByRole("link", { name: "Cart (3)" })).toBeInTheDocument();
   });
 
-  it("shows an empty cart as empty", () => {
+  it("CRT-062: shows an empty cart as empty", () => {
     useCartMock.mockReturnValue({ cart: cart(0), loading: false });
     render(<CartBadge />);
 
     expect(screen.getByRole("link", { name: "Cart (0)" })).toBeInTheDocument();
   });
 
-  it("links to the cart before the count is known", () => {
+  it("CRT-063: links to the cart before the count is known", () => {
     useCartMock.mockReturnValue({ cart: null, loading: true });
     render(<CartBadge />);
 

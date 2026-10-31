@@ -18,7 +18,7 @@ describe("catalogue", () => {
     await createCategory(app.prisma, { id: "cat_paper", slug: "paper", name: "Paper" });
   });
 
-  it("describes a product with its price, its sale price and its categories", async () => {
+  it("CATL-017: describes a product with its price, its sale price and its categories", async () => {
     await createProduct(app.prisma, {
       id: "prd_dock",
       slug: "dock",
@@ -47,7 +47,7 @@ describe("catalogue", () => {
     ]);
   });
 
-  it("puts twelve products on a page and says how many there are in total", async () => {
+  it("CATL-018: puts twelve products on a page and says how many there are in total", async () => {
     for (let index = 1; index <= 20; index += 1) {
       const label = String(index).padStart(2, "0");
       await createProduct(app.prisma, {
@@ -69,7 +69,7 @@ describe("catalogue", () => {
     expect(second.body.page).toBe(2);
   });
 
-  it("searches names without caring about case", async () => {
+  it("CATL-019: searches names without caring about case", async () => {
     await createProduct(app.prisma, { id: "prd_blue", name: "Blue notebook", priceCents: 500 });
     await createProduct(app.prisma, { id: "prd_red", name: "Red pen", priceCents: 300 });
 
@@ -78,7 +78,7 @@ describe("catalogue", () => {
     expect(res.body.items.map((item: { id: string }) => item.id)).toEqual(["prd_blue"]);
   });
 
-  it("returns only the products in the category asked for, including ones in several", async () => {
+  it("CATL-020: returns only the products in the category asked for, including ones in several", async () => {
     await createProduct(app.prisma, {
       id: "prd_hammer",
       name: "Hammer",
@@ -106,7 +106,7 @@ describe("catalogue", () => {
     ]);
   });
 
-  it("keeps only the products inside a price range", async () => {
+  it("CATL-021: keeps only the products inside a price range", async () => {
     await createProduct(app.prisma, { id: "prd_cheap", name: "Cheap thing", priceCents: 500 });
     await createProduct(app.prisma, { id: "prd_mid", name: "Middling thing", priceCents: 1500 });
     await createProduct(app.prisma, { id: "prd_dear", name: "Dear thing", priceCents: 5000 });
@@ -118,7 +118,7 @@ describe("catalogue", () => {
     expect(res.body.items.map((item: { id: string }) => item.id)).toEqual(["prd_mid"]);
   });
 
-  it("sorts by price, most expensive first", async () => {
+  it("CATL-022: sorts by price, most expensive first", async () => {
     await createProduct(app.prisma, { id: "prd_a", name: "Aaa", priceCents: 1250, categoryIds: ["cat_tools"] });
     await createProduct(app.prisma, { id: "prd_b", name: "Bbb", priceCents: 1899, categoryIds: ["cat_tools"] });
     await createProduct(app.prisma, { id: "prd_c", name: "Ccc", priceCents: 1499, categoryIds: ["cat_tools"] });
@@ -130,7 +130,7 @@ describe("catalogue", () => {
     ]);
   });
 
-  it("lists the categories", async () => {
+  it("CATL-023: lists the categories", async () => {
     const res = await request(app.server).get("/categories").expect(200);
 
     expect(res.body).toEqual([
@@ -139,7 +139,7 @@ describe("catalogue", () => {
     ]);
   });
 
-  it("rejects a page number below one", async () => {
+  it("CATL-024: rejects a page number below one", async () => {
     const res = await request(app.server).get("/products?page=0").expect(400);
 
     expect(res.body.code).toBe("VALIDATION_FAILED");

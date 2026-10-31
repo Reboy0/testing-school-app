@@ -9,7 +9,7 @@ const SEEDED_NAME = "Sam Student";
 // reset. Deriving it from the clock keeps every run's account its own.
 const NEW_ACCOUNT_EMAIL = `e2e-new-${Date.now()}@example.com`;
 
-test("register and land on the home page", async ({ page }) => {
+test("LOGIN-070: register and land on the home page", async ({ page }) => {
   await page.goto("/register");
   await page.getByLabel("Email address").fill(NEW_ACCOUNT_EMAIL);
   await page.getByLabel("Name").fill("E2E New User");
@@ -19,7 +19,7 @@ test("register and land on the home page", async ({ page }) => {
   await expect(page).toHaveURL("/");
 });
 
-test("sign in and reach the profile", async ({ page }) => {
+test("LOGIN-071: sign in and reach the profile", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email address").fill(SEEDED_EMAIL);
   await page.getByLabel("Password").fill(SEEDED_PASSWORD);
@@ -32,7 +32,7 @@ test("sign in and reach the profile", async ({ page }) => {
   await expect(page.getByText(SEEDED_EMAIL)).toBeVisible();
 });
 
-test("the user's name in the header leads to the profile, addresses and all", async ({ page }) => {
+test("LOGIN-072: the user's name in the header leads to the profile, addresses and all", async ({ page }) => {
   await page.goto("/login");
   await page.getByLabel("Email address").fill(SEEDED_EMAIL);
   await page.getByLabel("Password").fill(SEEDED_PASSWORD);
@@ -47,7 +47,7 @@ test("the user's name in the header leads to the profile, addresses and all", as
   await expect(page.getByRole("button", { name: "Save address" })).toBeVisible();
 });
 
-test("an unauthenticated visit to /profile lands on sign-in", async ({ page }) => {
+test("LOGIN-073: an unauthenticated visit to /profile lands on sign-in", async ({ page }) => {
   await page.goto("/profile");
 
   await expect(page).toHaveURL(/\/login/);
