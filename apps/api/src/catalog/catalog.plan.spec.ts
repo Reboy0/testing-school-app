@@ -6,7 +6,7 @@ import { effectivePriceCents } from "../common/money";
 import { totalPages } from "../common/pagination";
 import { CatalogService } from "./catalog.service";
 import { categoryWhere, priceWhere, searchWhere } from "./product-filters";
-import { withIds } from "../../test/ids";
+import { withIds } from "../../test/utils/ids";
 
 function row(id: string, name: string, priceCents: number) {
   return {

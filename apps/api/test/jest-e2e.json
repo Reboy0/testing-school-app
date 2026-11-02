@@ -9,9 +9,9 @@
       {
         "diagnostics": {
           "exclude": [
-            "**/test/auth-register.e2e-spec.ts",
-            "**/test/auth-login.e2e-spec.ts",
-            "**/test/auth-session.e2e-spec.ts"
+            "**/test/specs/auth/regression-register.e2e-spec.ts",
+            "**/test/specs/auth/regression-login.e2e-spec.ts",
+            "**/test/specs/auth/regression-session.e2e-spec.ts"
           ]
         }
       }
@@ -19,6 +19,6 @@
   },
   "globalSetup": "<rootDir>/test/global-setup.ts",
   "setupFilesAfterEnv": [
-    "<rootDir>/test/isolation.ts"
+    "<rootDir>/test/fixture/isolation.ts"
   ]
 }
