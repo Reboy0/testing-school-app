@@ -193,7 +193,11 @@ jobs:
         if: ${{ !cancelled() && steps.servers.outcome == 'success' }}
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: ${{ github.workspace }}/reports/e2e.xml
-        run: pnpm --filter @school/e2e exec playwright test
+          BASE_URL_WEB: http://localhost:3000
+          API_URL: http://localhost:4000
+          MAILDEV_URL: http://localhost:1080
+          DATABASE_URL: postgresql://school:school@localhost:5432/school
+        run: pnpm --filter @school/e2e exec playwright test --project chromium
       - name: Report browser tests to OpenCards
         if: ${{ !cancelled() }}
         run: |

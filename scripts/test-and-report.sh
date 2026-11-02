@@ -21,7 +21,7 @@ JEST_JUNIT_OUTPUT_FILE="$root/reports/shared-unit.xml" pnpm --filter @school/sha
 JEST_JUNIT_OUTPUT_FILE="$root/reports/api-unit.xml" pnpm --filter @school/api exec jest --ci --reporters=default --reporters=jest-junit
 JEST_JUNIT_OUTPUT_FILE="$root/reports/api-integration.xml" pnpm --filter @school/api exec jest --config test/jest-e2e.json --runInBand --ci --reporters=default --reporters=jest-junit
 pnpm --filter @school/web exec vitest run --reporter=default --reporter=junit "--outputFile.junit=$root/reports/web-component.xml"
-PLAYWRIGHT_JUNIT_OUTPUT_FILE="$root/reports/e2e.xml" pnpm --filter @school/e2e exec playwright test
+PLAYWRIGHT_JUNIT_OUTPUT_FILE="$root/reports/e2e.xml" pnpm --filter @school/e2e exec playwright test --project chromium
 
 if [ -n "${NO_SEND:-}" ]; then echo "NO_SEND is set — reports are in reports/, not sent"; exit 0; fi
 
