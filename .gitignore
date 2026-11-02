@@ -6,6 +6,7 @@ build/
 coverage/
 playwright-report/
 test-results/
+reports/
 *.tsbuildinfo
 next-env.d.ts
 

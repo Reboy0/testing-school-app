@@ -6,7 +6,7 @@ describe("cart totals", () => {
     { unitPriceCents: 350, quantity: 2, discountPercent: 0 },
   ];
 
-  it("adds up every line", () => {
+  it("CRT-039: adds up every line", () => {
     const expected = lines.reduce(
       (total, line) => total + lineTotalCents(line.unitPriceCents, line.quantity),
       0,
@@ -15,7 +15,7 @@ describe("cart totals", () => {
     expect(cartTotals(lines).subtotalCents).toBe(expected);
   });
 
-  it("adds up every discount", () => {
+  it("CRT-040: adds up every discount", () => {
     const expected = lines.reduce(
       (total, line) =>
         total + lineDiscountCents(line.unitPriceCents, line.quantity, line.discountPercent),
@@ -25,7 +25,7 @@ describe("cart totals", () => {
     expect(cartTotals(lines).discountCents).toBe(expected);
   });
 
-  it("charges the subtotal less the discounts", () => {
+  it("CRT-041: charges the subtotal less the discounts", () => {
     const totals = cartTotals(lines);
 
     expect(totals.payableCents).toBe(totals.subtotalCents - totals.discountCents);
